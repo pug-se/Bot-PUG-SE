@@ -5,12 +5,11 @@ import os
 
 import utils
 
-
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-token = ''
+token = os.environ['TELEGRAM_KEY']
 
 class PUGSEBot():
     chatId = "-1001413864839" # trocar para o id do grupo PUGSE
