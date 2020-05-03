@@ -2,29 +2,88 @@ import logging
 
 from telegram.ext import Updater, CommandHandler
 
+import utils
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-logger = logging.getLogger(__name__)
+token = ""
 
+class PUGSEBot():
+    logger = logging.getLogger('PUGSEBot')
+    
+    def start(self, update, context):
+        text = "Olá, Sou o PUG-SE-BOT teste."
+        self.reply_message(update, context, text)
 
-def start(update, context):
-    update.message.reply_text("Olá, Sou o PUG-SE-BOT teste.")
+    def get_udemy_coupons(self, update, context):
+        text = ''
+        try:
+            url = 'https://couponscorpion.com/'
+            soup = utils.get_html_soup(url)
+            title_list = []
+            url_list = []
+            for h3 in soup.findAll('h3'):
+                a = h3.find('a')
+                if a:
+                    title_list.append(a.text.strip())
+                    url_list.append(a.get('href').strip())
+            
+            text = "Esses foram os cupons da udemy que encontrei: "
 
+            for title, url in zip(title_list, url_list):           
+                text += f'{url} \n'
 
-def main():
-    updater = Updater("TOKEN", use_context=True)
+        except Exception as e:
+            logging.error(e)
 
-    dp = updater.dispatcher
+        self.reply_message(update, context, text)
 
-    dp.add_handler(CommandHandler("start", start))
+    def get_python_news(self, update, context):
+        text = ''
+        try:
+            url = 'https://www.python.org/blogs/'
+            soup = utils.get_html_soup(url)
+            title_list = []
+            url_list = []
+            
+            h3 = soup.find('h3',{'class':'event-title'})
+            a = h3.find('a')
+            title_list.append(a.text.strip())
+            url_list.append(a.get('href').strip())
+            url = 'https://pybit.es/archives.html'
+            soup = utils.get_html_soup(url)
+  
+            a = soup.find('dl',{'class':'dl-horizontal'}).find('a')
+            title_list.append(a.text.strip())
+            url_list.append(a.get('href').strip())
+            
+            text = "As notícias mais quentes sobre Python: "
+            for title, url in zip(title_list, url_list):           
+                text += f'{title}: {url} \n'
+        except Exception as e:
+            raise e
+            logging.error(e)
 
-    updater.start_polling()
+        self.reply_message(update, context, text)
 
-    updater.idle()
+    def reply_message(self, update, context, text):
+        person_name = update.effective_user.full_name
+        if not text:
+            text = "Ocorreu algum problema e não consegui atender seu pedido."
+        text = f"{person_name}, " + text
+        update.message.reply_text(text)
 
-
+    def __init__(self):
+        self.updater = Updater(token=token, use_context=True)
+        self.dp = self.updater.dispatcher
+        self.dp.add_handler(CommandHandler("start", self.start))
+        self.dp.add_handler(CommandHandler("news", self.get_python_news))
+        self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
+        self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
+        self.updater.start_polling()
+        self.updater.idle()
+    
 if __name__ == "__main__":
-    main()
+    PUGSEBot()
