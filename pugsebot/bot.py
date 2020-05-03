@@ -1,14 +1,16 @@
-import logging
-
 from telegram.ext import Updater, CommandHandler
 
+import logging
+import os 
+
 import utils
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-token = ""
+token = ''
 
 class PUGSEBot():
     chatId = "-1001413864839" # trocar para o id do grupo PUGSE
@@ -33,7 +35,7 @@ class PUGSEBot():
             
             text = "esses foram os cupons da Udemy que encontrei:\n"
 
-            for title, url in zip(title_list, url_list):           
+            for _, url in zip(title_list, url_list):           
                 text += f'{url} \n'
 
         except Exception as e:
@@ -46,8 +48,6 @@ class PUGSEBot():
         try:
             url = 'https://www.python.org/blogs/'
             soup = utils.get_html_soup(url)
-            title_list = []
-            url_list = []
             
             h3 = soup.find('h3',{'class':'event-title'})
             a = h3.find('a')
@@ -55,7 +55,6 @@ class PUGSEBot():
             url = a.get('href').strip()
             text = f'a notícia mais quente sobre Python:\n{title} — {url}'
         except Exception as e:
-            raise e
             self.logger.error(e)
 
         self.reply_message(update, context, text)
