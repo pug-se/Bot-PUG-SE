@@ -11,6 +11,7 @@ logging.basicConfig(
 token = ""
 
 class PUGSEBot():
+    chatId = "-1001413864839" # trocar para o id do grupo PUGSE
     logger = logging.getLogger('PUGSEBot')
     
     def start(self, update, context):
@@ -30,13 +31,13 @@ class PUGSEBot():
                     title_list.append(a.text.strip())
                     url_list.append(a.get('href').strip())
             
-            text = "Esses foram os cupons da udemy que encontrei: "
+            text = "esses foram os cupons da Udemy que encontrei:\n"
 
             for title, url in zip(title_list, url_list):           
                 text += f'{url} \n'
 
         except Exception as e:
-            logging.error(e)
+            self.logger.error(e)
 
         self.reply_message(update, context, text)
 
@@ -50,21 +51,12 @@ class PUGSEBot():
             
             h3 = soup.find('h3',{'class':'event-title'})
             a = h3.find('a')
-            title_list.append(a.text.strip())
-            url_list.append(a.get('href').strip())
-            url = 'https://pybit.es/archives.html'
-            soup = utils.get_html_soup(url)
-  
-            a = soup.find('dl',{'class':'dl-horizontal'}).find('a')
-            title_list.append(a.text.strip())
-            url_list.append(a.get('href').strip())
-            
-            text = "As notícias mais quentes sobre Python: "
-            for title, url in zip(title_list, url_list):           
-                text += f'{title}: {url} \n'
+            title = a.text.strip()
+            url = a.get('href').strip()
+            text = f'a notícia mais quente sobre Python:\n{title} — {url}'
         except Exception as e:
             raise e
-            logging.error(e)
+            self.logger.error(e)
 
         self.reply_message(update, context, text)
 
@@ -75,10 +67,17 @@ class PUGSEBot():
         text = f"{person_name}, " + text
         update.message.reply_text(text)
 
+    def send_message(self, update, context):
+        text = update.message.text.replace('/send','')
+        context.bot.send_message(
+            chat_id=self.chatId,
+            text=text)
+
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.dp = self.updater.dispatcher
         self.dp.add_handler(CommandHandler("start", self.start))
+        self.dp.add_handler(CommandHandler("send", self.send_message))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
