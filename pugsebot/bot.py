@@ -4,6 +4,7 @@ import logging
 import os 
 
 import utils
+from memes import get_url_image_vida_programador
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -71,14 +72,29 @@ class PUGSEBot():
             chat_id=self.chatId,
             text=text)
 
+    def send_image(self, context, url):
+        context.bot.send_photo(
+            chat_id=self.chatId,
+            photo=url,
+        )
+
+    def send_memes(self, update, context):
+        def send_meme():
+            self.send_image(context, get_url_image_vida_programador())
+
+        self.schedule_manager.add_schedule(send_meme)
+        self.schedule_manager.start_schedules()
+
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
+        self.schedule_manager = utils.ScheduleManager()
         self.dp = self.updater.dispatcher
         self.dp.add_handler(CommandHandler("start", self.start))
         self.dp.add_handler(CommandHandler("send", self.send_message))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
+        self.dp.add_handler(CommandHandler('memes', self.send_memes))
         self.updater.start_polling()
         self.updater.idle()
     
