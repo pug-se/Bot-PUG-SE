@@ -1,3 +1,5 @@
+import random
+
 from utils import get_html_soup
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
@@ -36,3 +38,24 @@ def get_url_image_vida_programador():
         meme_found = tags_found and bool(metadata_image)
 
     return metadata_image[0]['src']
+
+BASE_URL_TURNOFF_US = 'https://turnoff.us'
+URL_TURNOFF_US_ALL_POSTS = BASE_URL_TURNOFF_US + '/pt/all/'
+
+def get_url_image_turnoff_us():
+    document = get_html_soup(URL_TURNOFF_US_ALL_POSTS)
+    random_link = random.choice(document.select('.post-link'))
+    random_url = random_link['href']
+
+    random_document = get_html_soup(BASE_URL_TURNOFF_US + random_url)
+    random_image = random_document.select('.post-content img')
+    return BASE_URL_TURNOFF_US + random_image[0]['src']
+
+MEMES_IMAGES_FUNCTIONS = [
+    get_url_image_vida_programador,
+    get_url_image_turnoff_us,
+]
+
+def get_random_meme_image():
+    random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
+    return random_image_function()

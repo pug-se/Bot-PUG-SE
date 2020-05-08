@@ -4,7 +4,7 @@ import logging
 import os 
 
 import utils
-from memes import get_url_image_vida_programador
+from memes import get_random_meme_image
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -80,7 +80,7 @@ class PUGSEBot():
 
     def send_memes(self, update, context):
         def send_meme():
-            self.send_image(context, get_url_image_vida_programador())
+            self.send_image(context, get_random_meme_image())
 
         self.schedule_manager.add_schedule(send_meme)
         self.schedule_manager.start_schedules()
