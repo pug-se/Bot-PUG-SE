@@ -24,13 +24,14 @@ class ScheduleManager:
         self.schedules = []
 
     def add_schedule(self, method):
+        method()
         self.schedules.append(method)
 
     def run_thread(self, args):
         while True:
+            time.sleep(UM_DIA_EM_SEGUNDOS)
             for schedule in self.schedules:
                 schedule()
-            time.sleep(UM_DIA_EM_SEGUNDOS)
 
     def start_schedules(self):
         if self.schedule_thread:
