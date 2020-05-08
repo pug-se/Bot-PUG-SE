@@ -21,16 +21,18 @@ def get_html_soup(url):
 class ScheduleManager:
     def __init__(self):
         self.schedule_thread = None
-        self.schedules = []
+        self.schedules = {}
 
     def add_schedule(self, method):
+        name = method.__name__
         method()
-        self.schedules.append(method)
+        if name not in self.schedules:
+            self.schedules[name] = method
 
     def run_thread(self, args):
         while True:
             time.sleep(UM_DIA_EM_SEGUNDOS)
-            for schedule in self.schedules:
+            for schedule in list(self.schedules.values()):
                 schedule()
 
     def start_schedules(self):
