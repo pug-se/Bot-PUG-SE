@@ -1,19 +1,20 @@
-from telegram.ext import Updater, CommandHandler
-
 import logging
-import os 
+import os
+
+from telegram.ext import Updater, CommandHandler
 
 import utils
 from memes import get_random_meme_image
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 
 token = os.environ['TELEGRAM_KEY']
 
 class PUGSEBot():
-    chatId = "-1001413864839" # trocar para o id do grupo PUGSE
+    chat_id = os.environ['TELEGRAM_CHAT_ID']
     logger = logging.getLogger('PUGSEBot')
     
     def start(self, update, context):
@@ -69,12 +70,12 @@ class PUGSEBot():
     def send_message(self, update, context):
         text = update.message.text.replace('/send','')
         context.bot.send_message(
-            chat_id=self.chatId,
+            chat_id=self.chat_id,
             text=text)
 
     def send_image(self, context, url):
         context.bot.send_photo(
-            chat_id=self.chatId,
+            chat_id=self.chat_id,
             photo=url,
         )
 
