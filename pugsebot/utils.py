@@ -13,41 +13,42 @@ headers = {
     ' AppleWebKit/537.36 (KHTML, like Gecko)'\
     ' Chrome/39.0.2171.95 Safari/537.36'}
 
-UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
-
 def get_html_soup(url):
     request = requests.get(url, headers=headers)
     return BeautifulSoup(request.text)
 
-class ScheduleManager:
-    def __init__(self):
-        self.schedule_thread = None
-        self.schedules = {}
+class Schedule:
+    def __init__(self, job, interval):
+        self.job = job
+        self.interval = interval
+        self.thread = None
         self.logger = logging.getLogger('PUGSEBot')
 
-    def add_schedule(self, method):
-        name = method.__name__
-        if name not in self.schedules:
-            self.schedules[name] = method
-
-    def run_thread(self, args):
+    def run_thread(self, unused):
         while True:
-            for schedule in list(self.schedules.values()):
-                self.execute_schedule(schedule)
-            time.sleep(UM_DIA_EM_SEGUNDOS)
+            try:
+                self.job()
+            except Exception as error:
+                self.logger.error(error)
+            time.sleep(self.interval)
 
-    def start_schedules(self):
-        if self.schedule_thread:
+    def start(self):
+        if self.thread:
             return
-        self.schedule_thread = threading.Thread(
+        self.thread = threading.Thread(
             target=self.run_thread,
             args=(self,),
             daemon=True,
         )
-        self.schedule_thread.start()
+        self.thread.start()
 
-    def execute_schedule(self, schedule):
-        try:
-            schedule()
-        except Exception as error:
-            self.logger.error(error)
+class ScheduleManager:
+    def __init__(self):
+        self.schedules = {}
+
+    def add_schedule(self, job, interval):
+        name = job.__name__
+        if name not in self.schedules:
+            schedule = Schedule(job, interval)
+            self.schedules[name] = schedule
+            schedule.start()

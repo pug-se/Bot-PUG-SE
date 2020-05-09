@@ -6,6 +6,8 @@ from telegram.ext import Updater, CommandHandler
 import utils
 from memes import get_random_meme_image
 
+UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
@@ -83,8 +85,10 @@ class PUGSEBot():
         def send_meme():
             self.send_image(get_random_meme_image())
 
-        self.schedule_manager.add_schedule(send_meme)
-        self.schedule_manager.start_schedules()
+        self.schedule_manager.add_schedule(send_meme, UM_DIA_EM_SEGUNDOS)
+
+    def init_schedules(self):
+        self.send_memes()
 
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
@@ -97,9 +101,7 @@ class PUGSEBot():
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
         self.updater.start_polling()
-
-        self.send_memes()
-
+        self.init_schedules()
         self.updater.idle()
     
 if __name__ == "__main__":
