@@ -26,11 +26,11 @@ class Schedule:
 
     def run_thread(self, unused):
         while True:
+            time.sleep(self.interval)
             try:
                 self.job()
             except Exception as error:
                 self.logger.error(error)
-            time.sleep(self.interval)
 
     def start(self):
         if self.thread:
