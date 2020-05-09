@@ -1,20 +1,24 @@
+import logging
+import os
+
 from telegram.ext import Updater, CommandHandler
 
-import logging
-import os 
-
 import utils
+from memes import get_random_meme_image
+
+UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 
 token = os.environ['TELEGRAM_KEY']
 
 class PUGSEBot():
-    chatId = "-1001413864839" # trocar para o id do grupo PUGSE
+    chat_id = os.environ['TELEGRAM_CHAT_ID']
     logger = logging.getLogger('PUGSEBot')
-    
+
     def start(self, update, context):
         text = "Olá, Sou o PUG-SE-BOT teste."
         self.reply_message(update, context, text)
@@ -65,21 +69,43 @@ class PUGSEBot():
         text = f"{person_name}, " + text
         update.message.reply_text(text)
 
+    @staticmethod
+    def reply_meme(update, context):
+        update.message.reply_photo(photo=get_random_meme_image())
+
     def send_message(self, update, context):
         text = update.message.text.replace('/send','')
         context.bot.send_message(
-            chat_id=self.chatId,
+            chat_id=self.chat_id,
             text=text)
+
+    def send_image(self, url):
+        self.bot.send_photo(
+            chat_id=self.chat_id,
+            photo=url,
+        )
+
+    def send_memes(self):
+        def send_meme():
+            self.send_image(get_random_meme_image())
+
+        self.schedule_manager.add_schedule(send_meme, UM_DIA_EM_SEGUNDOS)
+
+    def init_schedules(self):
+        self.send_memes()
 
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
+        self.schedule_manager = utils.ScheduleManager()
+        self.bot = self.updater.bot
         self.dp = self.updater.dispatcher
         self.dp.add_handler(CommandHandler("start", self.start))
         self.dp.add_handler(CommandHandler("send", self.send_message))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
-        self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
+        self.dp.add_handler(CommandHandler("memes", self.reply_meme))
         self.updater.start_polling()
+        self.init_schedules()
         self.updater.idle()
     
 if __name__ == "__main__":
