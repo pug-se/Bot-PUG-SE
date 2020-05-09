@@ -14,20 +14,28 @@ headers = {
     ' Chrome/39.0.2171.95 Safari/537.36'}
 
 def get_html_soup(url):
-    request = requests.get(url, headers=headers)
-    return BeautifulSoup(request.text)
+    soup = None
+    try:
+        request = requests.get(url, headers=headers)
+        soup = BeautifulSoup(request.text)
+    except:
+        pass
+    return soup
 
 class Schedule:
     def __init__(self, job, interval):
         self.job = job
         self.interval = interval
         self.thread = None
-        self.logger = logging.getLogger('PUGSEBot')
+        self.logger = logging.getLogger('Schedule')
 
     def run_thread(self, unused):
         while True:
             time.sleep(self.interval)
             try:
+                name = self.job.__name__
+                self.logger.info(
+                    f'{name} running')
                 self.job()
             except Exception as error:
                 self.logger.error(error)
@@ -44,10 +52,13 @@ class Schedule:
 
 class ScheduleManager:
     def __init__(self):
+        self.logger = logging.getLogger('ScheduleManager')
         self.schedules = {}
 
     def add_schedule(self, job, interval):
         name = job.__name__
+        self.logger.info(
+            f'Scheduling {name} with {interval/3600} hours of interval...')
         if name not in self.schedules:
             schedule = Schedule(job, interval)
             self.schedules[name] = schedule

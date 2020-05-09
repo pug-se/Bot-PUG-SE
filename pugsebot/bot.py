@@ -20,10 +20,10 @@ class PUGSEBot():
     logger = logging.getLogger('PUGSEBot')
 
     def start(self, update, context):
-        text = "Olá, Sou o PUG-SE-BOT teste."
+        text = "olá, sou o PUG-SE-BOT teste."
         self.reply_message(update, context, text)
 
-    def get_udemy_coupons(self, update, context):
+    def get_udemy_coupons(self, update=None, context=None):
         text = ''
         try:
             url = 'https://couponscorpion.com/'
@@ -44,9 +44,12 @@ class PUGSEBot():
         except Exception as e:
             self.logger.error(e)
 
-        self.reply_message(update, context, text)
+        if update is not None and context is not None:
+            self.reply_message(update, context, text)
+        else:
+            self.send_text(text)
 
-    def get_python_news(self, update, context):
+    def get_python_news(self, update=None, context=None):
         text = ''
         try:
             url = 'https://www.python.org/blogs/'
@@ -60,7 +63,10 @@ class PUGSEBot():
         except Exception as e:
             self.logger.error(e)
 
-        self.reply_message(update, context, text)
+        if update is not None and context is not None:
+            self.reply_message(update, context, text)
+        else:
+            self.send_text(text)
 
     def reply_message(self, update, context, text):
         person_name = update.effective_user.full_name
@@ -79,6 +85,11 @@ class PUGSEBot():
             chat_id=self.chat_id,
             text=text)
 
+    def send_text(self, text):
+        self.bot.send_message(
+            chat_id=self.chat_id,
+            text=text)
+
     def send_image(self, url):
         self.bot.send_photo(
             chat_id=self.chat_id,
@@ -93,6 +104,12 @@ class PUGSEBot():
 
     def init_schedules(self):
         self.send_memes()
+        self.schedule_manager.add_schedule(
+            self.get_udemy_coupons, 
+            UM_DIA_EM_SEGUNDOS / 4)
+        self.schedule_manager.add_schedule(
+            self.get_python_news, 
+            UM_DIA_EM_SEGUNDOS * 2)
 
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
