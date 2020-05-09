@@ -18,7 +18,7 @@ token = os.environ['TELEGRAM_KEY']
 class PUGSEBot():
     chat_id = os.environ['TELEGRAM_CHAT_ID']
     logger = logging.getLogger('PUGSEBot')
-    
+
     def start(self, update, context):
         text = "Olá, Sou o PUG-SE-BOT teste."
         self.reply_message(update, context, text)
@@ -69,6 +69,10 @@ class PUGSEBot():
         text = f"{person_name}, " + text
         update.message.reply_text(text)
 
+    @staticmethod
+    def reply_meme(update, context):
+        update.message.reply_photo(photo=get_random_meme_image())
+
     def send_message(self, update, context):
         text = update.message.text.replace('/send','')
         context.bot.send_message(
@@ -99,7 +103,7 @@ class PUGSEBot():
         self.dp.add_handler(CommandHandler("send", self.send_message))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
-        self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
+        self.dp.add_handler(CommandHandler("memes", self.reply_meme))
         self.updater.start_polling()
         self.init_schedules()
         self.updater.idle()
