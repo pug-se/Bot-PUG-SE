@@ -73,15 +73,15 @@ class PUGSEBot():
             chat_id=self.chat_id,
             text=text)
 
-    def send_image(self, context, url):
-        context.bot.send_photo(
+    def send_image(self, url):
+        self.bot.send_photo(
             chat_id=self.chat_id,
             photo=url,
         )
 
-    def send_memes(self, update, context):
+    def send_memes(self):
         def send_meme():
-            self.send_image(context, get_random_meme_image())
+            self.send_image(get_random_meme_image())
 
         self.schedule_manager.add_schedule(send_meme)
         self.schedule_manager.start_schedules()
@@ -89,14 +89,17 @@ class PUGSEBot():
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
+        self.bot = self.updater.bot
         self.dp = self.updater.dispatcher
         self.dp.add_handler(CommandHandler("start", self.start))
         self.dp.add_handler(CommandHandler("send", self.send_message))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
-        self.dp.add_handler(CommandHandler('memes', self.send_memes))
         self.updater.start_polling()
+
+        self.send_memes()
+
         self.updater.idle()
     
 if __name__ == "__main__":

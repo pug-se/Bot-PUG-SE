@@ -27,15 +27,14 @@ class ScheduleManager:
 
     def add_schedule(self, method):
         name = method.__name__
-        self.execute_schedule(method)
         if name not in self.schedules:
             self.schedules[name] = method
 
     def run_thread(self, args):
         while True:
-            time.sleep(UM_DIA_EM_SEGUNDOS)
             for schedule in list(self.schedules.values()):
                 self.execute_schedule(schedule)
+            time.sleep(UM_DIA_EM_SEGUNDOS)
 
     def start_schedules(self):
         if self.schedule_thread:
@@ -47,7 +46,7 @@ class ScheduleManager:
         )
         self.schedule_thread.start()
 
-    def execute_schedule(schedule):
+    def execute_schedule(self, schedule):
         try:
             schedule()
         except Exception as error:
