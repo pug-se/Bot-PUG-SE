@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 import warnings
@@ -22,10 +23,11 @@ class ScheduleManager:
     def __init__(self):
         self.schedule_thread = None
         self.schedules = {}
+        self.logger = logging.getLogger('PUGSEBot')
 
     def add_schedule(self, method):
         name = method.__name__
-        method()
+        self.execute_schedule(method)
         if name not in self.schedules:
             self.schedules[name] = method
 
@@ -33,7 +35,7 @@ class ScheduleManager:
         while True:
             time.sleep(UM_DIA_EM_SEGUNDOS)
             for schedule in list(self.schedules.values()):
-                schedule()
+                self.execute_schedule(schedule)
 
     def start_schedules(self):
         if self.schedule_thread:
@@ -44,3 +46,9 @@ class ScheduleManager:
             daemon=True,
         )
         self.schedule_thread.start()
+
+    def execute_schedule(schedule):
+        try:
+            schedule()
+        except Exception as error:
+            self.logger.error(error)
