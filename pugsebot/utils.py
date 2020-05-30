@@ -1,12 +1,9 @@
 import logging
 import threading
 import time
-import warnings
 
 import requests
 from bs4 import BeautifulSoup
-
-warnings.filterwarnings("ignore")
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'\
@@ -17,7 +14,7 @@ def get_html_soup(url):
     soup = None
     try:
         request = requests.get(url, headers=headers)
-        soup = BeautifulSoup(request.text)
+        soup = BeautifulSoup(request.text, 'html.parser')
     except:
         pass
     return soup
