@@ -25,19 +25,19 @@ class PUGSEBot:
             update.message.reply_text(text)
         return text
 
-    def reply_image(self, update, image):
-        if image:
-            update.message.reply_photo(url=image)
-        return image
+    def reply_photo(self, update, photo):
+        if photo:
+            update.message.reply_photo(photo=photo)
+        return photo
 
     def send_text(self, text):
         if text and self.chat_id:
             self.bot.send_message(chat_id=self.chat_id, text=text)
         return text
 
-    def send_image(self, photo_url):
+    def send_photo(self, photo_url):
         if photo_url and self.chat_id:
-            self.bot.send_photo(chat_id=self.chat_id, url=photo_url)
+            self.bot.send_photo(chat_id=self.chat_id, photo=photo_url)
         return photo_url
 
     def say(self, update=None, context=None):
@@ -75,7 +75,7 @@ class PUGSEBot:
             self.logger.error(e)
 
         if update is not None:
-            return self.reply_message(update, text)
+            return self.reply_text(update, text)
         else:
             return self.send_text(text)
 
@@ -94,21 +94,21 @@ class PUGSEBot:
             self.logger.error(e)
 
         if update is not None:
-            return self.reply_message(update, text)
+            return self.reply_text(update, text)
         else:
             return self.send_text(text)
 
     def get_memes(self, update=None, context=None):
         if update is not None and context is not None:
-            return self.reply_photo(get_random_meme_image())
+            return self.reply_photo(update, get_random_meme_image())
         else:
-            return self.send_image(get_random_meme_image())
+            return self.send_photo(get_random_meme_image())
 
     def get_projects(self, update=None, context=None):
         repo_url = 'https://github.com/pug-se'
         text = f'Os projetos da comunidade estão no repositório: {repo_url}'
         if update is not None:
-            return self.reply_message(update, text)
+            return self.reply_text(update, text)
         return text
 
     def add_schedules(self):
@@ -132,7 +132,6 @@ class PUGSEBot:
 
         # add commands
         self.dp = self.updater.dispatcher
-        self.dp.add_handler(CommandHandler("start", self.start))
         self.dp.add_handler(CommandHandler("say", self.say))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
