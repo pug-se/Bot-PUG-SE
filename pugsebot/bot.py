@@ -16,10 +16,13 @@ logging.basicConfig(
 )
 
 token = os.environ["TELEGRAM_KEY"]
+target_chat_id = os.environ["TELEGRAM_CHAT_ID"]
+environment = os.environ.get('ENVIRONMENT', None)
+port = os.environ.get('PORT', None)
 
 class PUGSEBot:
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
     logger = logging.getLogger("PUGSEBot")
+    chat_id = target_chat_id 
 
     def reply_text(self, update, text):
         if text:
@@ -135,7 +138,7 @@ class PUGSEBot:
         if update is not None:
             return self.reply_text(update, text)
         return text
-
+    
     def add_schedules(self):
         self.schedule_manager.add_schedule(
             self.get_memes, 
@@ -149,7 +152,7 @@ class PUGSEBot:
             self.get_python_news, 
             UM_DIA_EM_SEGUNDOS * 2,
         )
-
+    
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
@@ -164,8 +167,20 @@ class PUGSEBot:
         self.dp.add_handler(CommandHandler("projects", self.get_projects))
 
     def start(self):
-        self.updater.start_polling()
-        self.add_schedules()
+        #self.add_schedules()
+        
+        if environment == 'PRODUCTION':
+            app_name = 'pugse-telegram-bot'
+            self.updater.start_webhook(
+                listen="0.0.0.0",
+                port=port,
+                url_path=token,
+            )
+            self.updater.bot.setWebhook(
+                f'https://{app_name}.herokuapp.com/{token}',
+            )
+        else:
+            self.updater.start_polling()
         self.updater.idle()
 
 if __name__ == "__main__":
