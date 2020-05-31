@@ -22,6 +22,9 @@ def get_html_soup(url):
         pass
     return soup
 
+def bot_reply(reply_method, response):
+    return lambda update, context: reply_method(update, context, response)
+
 class Schedule:
     def __init__(self, job, interval):
         self.job = job
