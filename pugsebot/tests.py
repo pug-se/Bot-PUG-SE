@@ -70,6 +70,10 @@ class TestUtils(unittest.TestCase):
         soup = utils.get_html_soup('test')
         self.assertIsNone(soup)
 
+    def test_get_json(self):
+        result = utils.get_json('test')
+        self.assertIsInstance(result, dict)
+
 class TestMemes(unittest.TestCase):
     def test_get_url_image_vida_programador(self):
         pass   

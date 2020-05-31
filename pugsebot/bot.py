@@ -2,6 +2,7 @@ import logging
 import os
 
 from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
 
 import threading
 
@@ -22,7 +23,10 @@ class PUGSEBot:
 
     def reply_text(self, update, text):
         if text:
-            update.message.reply_text(text)
+            update.message.reply_text(
+                text,
+                parse_mode=ParseMode.HTML,
+            )
         return text
 
     def reply_photo(self, update, photo):
@@ -32,12 +36,19 @@ class PUGSEBot:
 
     def send_text(self, text):
         if text and self.chat_id:
-            self.bot.send_message(chat_id=self.chat_id, text=text)
+            self.bot.send_message(
+                chat_id=self.chat_id, 
+                text=text,
+                parse_mode=ParseMode.HTML,
+            )
         return text
 
     def send_photo(self, photo_url):
         if photo_url and self.chat_id:
-            self.bot.send_photo(chat_id=self.chat_id, photo=photo_url)
+            self.bot.send_photo(
+                chat_id=self.chat_id, 
+                photo=photo_url,
+            )
         return photo_url
 
     def say(self, update=None, context=None):
@@ -66,10 +77,12 @@ class PUGSEBot:
                     title_list.append(a.text.strip())
                     url_list.append(a.get("href").strip())
 
-            text = "Esses foram os cupons da Udemy que encontrei:\n"
+            text = "Esses foram os cupons da Udemy que encontrei:\n\n"
 
-            for _, url in zip(title_list, url_list):
-                text += f"{url} \n"
+            i = 1
+            for title, url in zip(title_list, url_list):
+                text += f'{i}) <a href="{url}">{title}</a>\n'
+                i += 1
 
         except Exception as e:
             self.logger.error(e)
@@ -89,7 +102,8 @@ class PUGSEBot:
             a = h3.find("a")
             title = a.text.strip()
             url = a.get("href").strip()
-            text = f"A notícia mais quente sobre Python:\n{title} — {url}"
+            text = 'A notícia mais quente sobre Python:\n'
+            text += f'<a href="{url}">{title}</a>'
         except Exception as e:
             self.logger.error(e)
 
@@ -105,8 +119,19 @@ class PUGSEBot:
             return self.send_photo(get_random_meme_image())
 
     def get_projects(self, update=None, context=None):
-        repo_url = 'https://github.com/pug-se'
-        text = f'Os projetos da comunidade estão no repositório: {repo_url}'
+        repo_url = 'http://api.github.com/orgs/pug-se/repos'
+        text = 'Os projetos da comunidade estão no '
+        text += f'<a href="{repo_url}">GitHub</a>\n\n'
+        
+        url = 'https://api.github.com/orgs/pug-se/repos'
+        info_dict = utils.get_json(url)
+        i = 1
+        for info in info_dict:
+            name = info['name']
+            description = info['description']
+            url = info['html_url']
+            text += f'{i})  <a href="{url}">{name}</a>: {description}\n'
+            i += 1
         if update is not None:
             return self.reply_text(update, text)
         return text
