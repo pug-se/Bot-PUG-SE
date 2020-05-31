@@ -42,7 +42,7 @@ class PUGSEBot:
 
     def say(self, update=None, context=None):
         if update:
-            text = update.message.text.replace("/send", "")
+            text = update.message.text.replace("/say", "")
             if text:
                 self.send_text(text=text)
         return update
@@ -129,7 +129,6 @@ class PUGSEBot:
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
-
         # add commands
         self.dp = self.updater.dispatcher
         self.dp.add_handler(CommandHandler("say", self.say))
@@ -138,7 +137,7 @@ class PUGSEBot:
         self.dp.add_handler(CommandHandler("memes", self.get_memes))
         self.dp.add_handler(CommandHandler("about", self.get_about))
         self.dp.add_handler(CommandHandler("projects", self.get_projects))
-        
+
     def start(self):
         self.updater.start_polling()
         self.add_schedules()
