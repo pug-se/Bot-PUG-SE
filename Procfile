@@ -1,2 +1,2 @@
-web: python .\pugsebot\bot.py
-release: python .\pugsebot\tests.py
+web: python ./pugsebot/bot.py
+release: python ./pugsebot/tests.py
