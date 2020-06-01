@@ -5,9 +5,7 @@ from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
 import utils
-from functions import say, news, udemy, memes, about, projects
-
-UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
+from commands import command_list
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -22,8 +20,11 @@ port = os.environ.get('PORT', None)
 class PUGSEBot:
     logger = logging.getLogger('PUGSEBot')
     chat_id = target_chat_id
+    command_module_list = command_list
 
-    def reply_text(self, update, text):
+    def reply_text(self, **kwargs):
+        update = kwargs['update']
+        text = kwargs['text']
         if text:
             update.message.reply_text(
                 text,
@@ -31,12 +32,15 @@ class PUGSEBot:
             )
         return text
 
-    def reply_photo(self, update, photo):
+    def reply_photo(self, **kwargs):
+        update = kwargs['update']
+        photo = kwargs['photo']
         if photo:
             update.message.reply_photo(photo=photo)
         return photo
 
-    def send_text(self, text):
+    def send_text(self, **kwargs):
+        text = kwargs['text']
         if text and self.chat_id:
             self.bot.send_message(
                 chat_id=self.chat_id, 
@@ -45,7 +49,8 @@ class PUGSEBot:
             )
         return text
 
-    def send_photo(self, photo):
+    def send_photo(self, **kwargs):
+        photo = kwargs['photo']
         if photo and self.chat_id:
             self.bot.send_photo(
                 chat_id=self.chat_id, 
@@ -54,46 +59,52 @@ class PUGSEBot:
         return photo
 
     def add_schedules(self):
-        memes.schedule(
-            self.schedule_manager,
-            self.send_photo,
-            UM_DIA_EM_SEGUNDOS,
-        )
-        udemy.schedule(
-            self.schedule_manager,
-            self.send_text,
-            UM_DIA_EM_SEGUNDOS / 4,
-        )
-        news.schedule(
-            self.schedule_manager,
-            self.send_text,
-            UM_DIA_EM_SEGUNDOS * 2,
-        )
+        for command_module in self.command_module_list:
+            schedule = getattr(command_module, 'schedule', None)
+            if schedule:
+                schedule(self)
 
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
+        self.add_commands()
+    
+    def add_commands(self):
+        text = 'Comandos aceitos: \n'
         # add commands
         self.dp = self.updater.dispatcher
+        for command_module in self.command_module_list:
+            command = command_module.name
+            content_function = command_module.function
+            reply_method = getattr(
+                self, 
+                command_module.reply_function_name,
+            )
+
+            text += f'/{command}: {command_module.help}\n'
+            self.dp.add_handler(
+                CommandHandler(
+                    command, 
+                    self.reply_with_command(
+                        reply_method,
+                        content_function,
+                    ),
+                ),
+            )
+
+        def help(update, context):
+            return self.send_text(text=text)            
         self.dp.add_handler(
-            CommandHandler('say', say.reply(self.send_text))
-        )
-        self.dp.add_handler(
-            CommandHandler('news', news.reply(self.reply_text))
-        )
-        self.dp.add_handler(
-            CommandHandler('udemy', udemy.reply(self.reply_text))
-        )
-        self.dp.add_handler(
-            CommandHandler('memes', memes.reply(self.reply_photo))
-        )
-        self.dp.add_handler(
-            CommandHandler('about', about.reply(self.reply_text))
-        )
-        self.dp.add_handler(
-            CommandHandler('projects', projects.reply(self.reply_text))
-        )
+                CommandHandler('help' , help)
+        )    
+
+    def reply_with_command(self, bot_reply_func, create_content_func): 
+        def reply_content(update=None, context=None):
+            return bot_reply_func(
+                **create_content_func(update,context),
+            )
+        return reply_content
 
     def start(self):
         #self.add_schedules()

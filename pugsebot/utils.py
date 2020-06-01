@@ -11,6 +11,8 @@ headers = {
     ' AppleWebKit/537.36 (KHTML, like Gecko)'\
     ' Chrome/39.0.2171.95 Safari/537.36'}
 
+UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
+
 def get_html_soup(url):
     soup = None
     try:
@@ -19,11 +21,6 @@ def get_html_soup(url):
     except:
         pass
     return soup
-
-def bot_reply(reply_method, content):
-    def reply(update=None, context=None):
-        return reply_method(update, content)
-    return reply
 
 def get_json(url):
     result_dict = {}
@@ -75,3 +72,15 @@ class ScheduleManager:
             schedule = Schedule(job, interval)
             self.schedules[name] = schedule
             schedule.start()
+
+class Command():
+    def __init__(self, name, help, reply_function_name):
+        self.name = name
+        self.help = help
+        self.reply_function_name = reply_function_name
+
+    def function(self): # abstract method
+        raise NotImplemented
+
+    def schedule(self): # abstract method
+        raise NotImplemented    
