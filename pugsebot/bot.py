@@ -5,7 +5,7 @@ from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
 import utils
-from functions import say, news, udemy, memes, about
+from functions import say, news, udemy, memes, about, projects
 
 UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
 
@@ -70,24 +70,6 @@ class PUGSEBot:
             UM_DIA_EM_SEGUNDOS * 2,
         )
 
-    def get_projects(self, update=None, context=None):
-        repo_url = 'http://api.github.com/orgs/pug-se/repos'
-        text = 'Os projetos da comunidade estão no '
-        text += f'<a href="{repo_url}">GitHub</a>\n\n'
-        
-        url = 'https://api.github.com/orgs/pug-se/repos'
-        info_dict = utils.get_json(url)
-        i = 1
-        for info in info_dict:
-            name = info['name']
-            description = info['description']
-            url = info['html_url']
-            text += f'{i})  <a href="{url}">{name}</a>: {description}\n'
-            i += 1
-        if update is not None:
-            return self.reply_text(update, text)
-        return text
-
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
@@ -109,7 +91,9 @@ class PUGSEBot:
         self.dp.add_handler(
             CommandHandler('about', about.reply(self.reply_text))
         )
-        self.dp.add_handler(CommandHandler("projects", self.get_projects))
+        self.dp.add_handler(
+            CommandHandler('projects', projects.reply(self.reply_text))
+        )
 
     def start(self):
         #self.add_schedules()

@@ -7,9 +7,9 @@ from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
 from telegram.message import Message
 
-import bot 
+import bot
 import utils
-from functions import say, news, udemy, memes, about
+from functions import say, news, udemy, memes, about, projects
 
 def mock_update(message_text):
     message = Message(
@@ -55,12 +55,13 @@ class TestPUGSEBot(unittest.TestCase):
         self.assertIn('.png', update.message.text)
 
     def test_get_projects(self):
-        message = self.bot.get_projects() 
+        reply = projects.reply(mock_reply_method)
+        update = reply()
         self.assertIn(
             'https://github.com/pug-se', 
-            message,
+            update.message.text,
         )
-    
+
     def test_add_schedules(self):
         self.bot.add_schedules()
         self.assertNotEqual(
