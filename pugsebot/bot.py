@@ -64,12 +64,20 @@ class PUGSEBot:
             if schedule:
                 schedule(self)
 
-    def __init__(self):
-        self.updater = Updater(token=token, use_context=True)
+    def __init__(self, token):
+        self.updater = Updater(token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
         self.add_commands()
-    
+
+    def reply_with_command(self, bot_reply_func, create_content_func): 
+        def reply_content(update=None, context=None):
+            return bot_reply_func(
+                **create_content_func(update,context),
+            )
+        #import pdb;pdb.set_trace()
+        return reply_content
+
     def add_commands(self):
         text = 'Comandos aceitos: \n'
         # add commands
@@ -99,13 +107,6 @@ class PUGSEBot:
                 CommandHandler('help' , help)
         )    
 
-    def reply_with_command(self, bot_reply_func, create_content_func): 
-        def reply_content(update=None, context=None):
-            return bot_reply_func(
-                **create_content_func(update,context),
-            )
-        return reply_content
-
     def start(self):
         #self.add_schedules()
 
@@ -124,4 +125,4 @@ class PUGSEBot:
         self.updater.idle()
 
 if __name__ == "__main__":
-    PUGSEBot().start()
+    PUGSEBot(token).start()

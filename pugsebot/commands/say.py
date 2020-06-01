@@ -12,7 +12,9 @@ class Say(Command):
     def function(self, update=None, context=None):
         text = ''
         if update:
-            text = update.message.text.replace('/say', '')
+            text = update.message.text.replace(
+                '/say ', ''
+            ).strip()
         return {'text': text}
         
     def schedule(self):

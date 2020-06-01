@@ -12,4 +12,5 @@
 
 
 # Testes
-1) Execute o comando ``python ./pugsebot/tests.py``
+1) Adicione a variável de ambiente TELEGRAM_KEY_TEST (token do Telegram)
+2) Execute o comando ``python ./pugsebot/tests.py``
