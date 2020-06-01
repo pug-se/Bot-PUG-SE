@@ -25,7 +25,7 @@ class TestPUGSEBot(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         threading
-        cls.bot = bot.PUGSEBot()
+        cls.bot = bot.PUGSEBot()        
         cls.bot.chat_id = None
 
     def test_say(self):
