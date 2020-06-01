@@ -20,6 +20,11 @@ def get_html_soup(url):
         pass
     return soup
 
+def bot_reply(reply_method, content):
+    def reply(update=None, context=None):
+        return reply_method(update, content)
+    return reply
+
 def get_json(url):
     result_dict = {}
     try:

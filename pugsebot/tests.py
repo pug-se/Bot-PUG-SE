@@ -7,8 +7,9 @@ from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
 from telegram.message import Message
 
-import bot 
+import bot
 import utils
+from functions import say, news, udemy, memes, about, projects
 
 def mock_update(message_text):
     message = Message(
@@ -16,6 +17,9 @@ def mock_update(message_text):
         chat=0, text=message_text
     )
     return Update(0, message=message)
+
+def mock_reply_method(update=None, content=None):
+    return mock_update(content)
 
 class TestPUGSEBot(unittest.TestCase):
     @classmethod
@@ -25,36 +29,39 @@ class TestPUGSEBot(unittest.TestCase):
         cls.bot.chat_id = None
 
     def test_say(self):
-        update = mock_update(
-            message_text='test'
-        ) 
-        update = self.bot.say(update)
+        reply = say.reply(mock_reply_method)
+        update = reply(mock_update('/say test'))
         self.assertIn('test', update.message.text)
 
     def test_get_udemy_coupons(self):
-        message = self.bot.get_udemy_coupons()
-        self.assertIn('Udemy', message)
+        reply = udemy.reply(mock_reply_method)
+        update = reply()
+        self.assertIn('Udemy', update.message.text)
 
     def test_get_python_news(self):
-        message = self.bot.get_python_news()
-        self.assertIn('notícia', message)
+        reply = news.reply(mock_reply_method)
+        update = reply()
+        self.assertIn('notícia', update.message.text)
 
     def test_get_about(self):
-        message = self.bot.get_about()
-        self.assertIn('PUG-SE', message)
+        reply = about.reply(mock_reply_method)
+        update = reply()
+        self.assertIn('PUG-SE', update.message.text)
 
     def test_get_memes(self):
-        message = self.bot.get_memes() 
-        self.assertIn('https:', message)
-        self.assertIn('.png', message)
+        reply = memes.reply(mock_reply_method)
+        update = reply()
+        self.assertIn('https:', update.message.text)
+        self.assertIn('.png', update.message.text)
 
     def test_get_projects(self):
-        message = self.bot.get_projects() 
+        reply = projects.reply(mock_reply_method)
+        update = reply()
         self.assertIn(
             'https://github.com/pug-se', 
-            message,
+            update.message.text,
         )
-    
+
     def test_add_schedules(self):
         self.bot.add_schedules()
         self.assertNotEqual(
