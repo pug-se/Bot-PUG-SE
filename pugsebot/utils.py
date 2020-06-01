@@ -1,12 +1,10 @@
 import logging
 import threading
 import time
-import warnings
 
 import requests
 from bs4 import BeautifulSoup
-
-warnings.filterwarnings("ignore")
+import json
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'\
@@ -16,14 +14,25 @@ headers = {
 def get_html_soup(url):
     soup = None
     try:
-        request = requests.get(url, headers=headers)
-        soup = BeautifulSoup(request.text)
+        r = requests.get(url, headers=headers)
+        soup = BeautifulSoup(r.text, 'html.parser')
     except:
         pass
     return soup
 
-def bot_reply(reply_method, response):
-    return lambda update, context: reply_method(update, context, response)
+def bot_reply(reply_method, content):
+    def reply(update=None, context=None):
+        return reply_method(update, content)
+    return reply
+
+def get_json(url):
+    result_dict = {}
+    try:
+        r = requests.get(url, headers=headers)
+        result_dict = json.loads(r.text)
+    except:
+        pass
+    return result_dict
 
 class Schedule:
     def __init__(self, job, interval):

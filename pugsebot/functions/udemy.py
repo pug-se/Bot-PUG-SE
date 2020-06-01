@@ -17,11 +17,12 @@ def get_udemy_coupons():
                 title_list.append(link.text.strip())
                 url_list.append(link.get('href').strip())
 
-        text = "esses foram os cupons da Udemy que encontrei:\n"
+        text = "Esses foram os cupons da Udemy que encontrei:\n\n"
 
-        for _, url in zip(title_list, url_list):
-            text += f'{url} \n'
-
+        index = 1
+        for title, url in zip(title_list, url_list):
+            text += f'{index}) <a href="{url}">{title}</a>\n'
+            index += 1
     except Exception as error:
         logger.error(error)
 

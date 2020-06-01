@@ -14,7 +14,8 @@ def get_python_news():
         link = h3.find('a')
         title = link.text.strip()
         url = link.get('href').strip()
-        text = f'a notícia mais quente sobre Python:\n{title} — {url}'
+        text = 'A notícia mais quente sobre Python:\n'
+        text += f'<a href="{url}">{title}</a>'
     except Exception as error:
         logger.error(error)
 

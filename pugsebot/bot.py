@@ -2,9 +2,10 @@ import logging
 import os
 
 from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
 
 import utils
-from functions import start, send, news, udemy, memes, about
+from functions import say, news, udemy, memes, about
 
 UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
 
@@ -14,77 +15,118 @@ logging.basicConfig(
 )
 
 token = os.environ['TELEGRAM_KEY']
+target_chat_id = os.environ['TELEGRAM_CHAT_ID']
+environment = os.environ.get('ENVIRONMENT', None)
+port = os.environ.get('PORT', None)
 
-class PUGSEBot():
-    chat_id = os.environ['TELEGRAM_CHAT_ID']
+class PUGSEBot:
     logger = logging.getLogger('PUGSEBot')
+    chat_id = target_chat_id
 
-    def reply_message(self, update, context, text):
-        person_name = update.effective_user.full_name
-        if not text:
-            text = "Ocorreu algum problema e não consegui atender seu pedido."
-        text = f"{person_name}, " + text
-        update.message.reply_text(text)
+    def reply_text(self, update, text):
+        if text:
+            update.message.reply_text(
+                text,
+                parse_mode=ParseMode.HTML,
+            )
+        return text
 
-    @staticmethod
-    def reply_image(update, context, image):
-        update.message.reply_photo(photo=image)
+    def reply_photo(self, update, photo):
+        if photo:
+            update.message.reply_photo(photo=photo)
+        return photo
 
-    def send_message(self, text):
-        self.bot.send_message(
-            chat_id=self.chat_id,
-            text=text,
-        )
+    def send_text(self, text):
+        if text and self.chat_id:
+            self.bot.send_message(
+                chat_id=self.chat_id, 
+                text=text,
+                parse_mode=ParseMode.HTML,
+            )
+        return text
 
-    def send_image(self, url):
-        self.bot.send_photo(
-            chat_id=self.chat_id,
-            photo=url,
-        )
+    def send_photo(self, photo):
+        if photo and self.chat_id:
+            self.bot.send_photo(
+                chat_id=self.chat_id, 
+                photo=photo,
+            )
+        return photo
 
-    def init_schedules(self):
+    def add_schedules(self):
         memes.schedule(
             self.schedule_manager,
-            self.send_image,
+            self.send_photo,
             UM_DIA_EM_SEGUNDOS,
         )
         udemy.schedule(
             self.schedule_manager,
-            self.send_message,
+            self.send_text,
             UM_DIA_EM_SEGUNDOS / 4,
         )
         news.schedule(
             self.schedule_manager,
-            self.send_message,
+            self.send_text,
             UM_DIA_EM_SEGUNDOS * 2,
         )
+
+    def get_projects(self, update=None, context=None):
+        repo_url = 'http://api.github.com/orgs/pug-se/repos'
+        text = 'Os projetos da comunidade estão no '
+        text += f'<a href="{repo_url}">GitHub</a>\n\n'
+        
+        url = 'https://api.github.com/orgs/pug-se/repos'
+        info_dict = utils.get_json(url)
+        i = 1
+        for info in info_dict:
+            name = info['name']
+            description = info['description']
+            url = info['html_url']
+            text += f'{i})  <a href="{url}">{name}</a>: {description}\n'
+            i += 1
+        if update is not None:
+            return self.reply_text(update, text)
+        return text
 
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
+        # add commands
         self.dp = self.updater.dispatcher
         self.dp.add_handler(
-            CommandHandler('start', start.reply(self.reply_message))
+            CommandHandler('say', say.reply(self.send_text))
         )
         self.dp.add_handler(
-            CommandHandler('send', send.reply(self.send_message))
+            CommandHandler('news', news.reply(self.reply_text))
         )
         self.dp.add_handler(
-            CommandHandler('news', news.reply(self.reply_message))
+            CommandHandler('udemy', udemy.reply(self.reply_text))
         )
         self.dp.add_handler(
-            CommandHandler('udemy', udemy.reply(self.reply_message))
+            CommandHandler('memes', memes.reply(self.reply_photo))
         )
         self.dp.add_handler(
-            CommandHandler('memes', memes.reply(self.reply_image))
+            CommandHandler('about', about.reply(self.reply_text))
         )
-        self.dp.add_handler(
-            CommandHandler('about', about.reply(self.reply_message))
-        )
-        self.updater.start_polling()
-        self.init_schedules()
+        self.dp.add_handler(CommandHandler("projects", self.get_projects))
+
+    def start(self):
+        #self.add_schedules()
+
+        if environment == 'PRODUCTION':
+            app_name = 'pugse-telegram-bot'
+            self.updater.start_webhook(
+                listen="0.0.0.0",
+                port=port,
+                url_path=token,
+            )
+            self.updater.bot.setWebhook(
+                f'https://{app_name}.herokuapp.com/{token}',
+            )
+        else:
+            self.updater.start_polling()
         self.updater.idle()
 
 if __name__ == "__main__":
-    PUGSEBot()
+    PUGSEBot().start()
