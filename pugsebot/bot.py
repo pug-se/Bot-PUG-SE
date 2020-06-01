@@ -2,6 +2,9 @@ import logging
 import os
 
 from telegram.ext import Updater, CommandHandler
+from telegram import ParseMode
+
+import threading
 
 import utils
 from memes import get_random_meme_image
@@ -13,15 +16,56 @@ logging.basicConfig(
 )
 
 token = os.environ["TELEGRAM_KEY"]
-
+target_chat_id = os.environ["TELEGRAM_CHAT_ID"]
+environment = os.environ.get('ENVIRONMENT', None)
+port = os.environ.get('PORT', None)
 
 class PUGSEBot:
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
     logger = logging.getLogger("PUGSEBot")
+    chat_id = target_chat_id 
 
-    def start(self, update, context):
-        text = "olá, sou o PUG-SE-BOT teste."
-        self.reply_message(update, context, text)
+    def reply_text(self, update, text):
+        if text:
+            update.message.reply_text(
+                text,
+                parse_mode=ParseMode.HTML,
+            )
+        return text
+
+    def reply_photo(self, update, photo):
+        if photo:
+            update.message.reply_photo(photo=photo)
+        return photo
+
+    def send_text(self, text):
+        if text and self.chat_id:
+            self.bot.send_message(
+                chat_id=self.chat_id, 
+                text=text,
+                parse_mode=ParseMode.HTML,
+            )
+        return text
+
+    def send_photo(self, photo_url):
+        if photo_url and self.chat_id:
+            self.bot.send_photo(
+                chat_id=self.chat_id, 
+                photo=photo_url,
+            )
+        return photo_url
+
+    def say(self, update=None, context=None):
+        if update:
+            text = update.message.text.replace("/say", "")
+            if text:
+                self.send_text(text=text)
+        return update
+
+    def get_about(self, update=None, context=None):
+        text = "Este bot foi feito pela comunidade de Python PUG-SE para levar informações importantes sobre a linguagem Python e eventos da comunidade.\nPara saber quais as funcionalidades do bot digite /help \nPara saber mais ou contribuir com o projeto: https://github.com/pug-se/Bot-PUG-SE"
+        if update:
+            return self.reply_text(update, text)
+        return text
 
     def get_udemy_coupons(self, update=None, context=None):
         text = ""
@@ -36,18 +80,20 @@ class PUGSEBot:
                     title_list.append(a.text.strip())
                     url_list.append(a.get("href").strip())
 
-            text = "esses foram os cupons da Udemy que encontrei:\n"
+            text = "Esses foram os cupons da Udemy que encontrei:\n\n"
 
-            for _, url in zip(title_list, url_list):
-                text += f"{url} \n"
+            i = 1
+            for title, url in zip(title_list, url_list):
+                text += f'{i}) <a href="{url}">{title}</a>\n'
+                i += 1
 
         except Exception as e:
             self.logger.error(e)
 
-        if update is not None and context is not None:
-            self.reply_message(update, context, text)
+        if update is not None:
+            return self.reply_text(update, text)
         else:
-            self.send_text(text)
+            return self.send_text(text)
 
     def get_python_news(self, update=None, context=None):
         text = ""
@@ -59,68 +105,83 @@ class PUGSEBot:
             a = h3.find("a")
             title = a.text.strip()
             url = a.get("href").strip()
-            text = f"a notícia mais quente sobre Python:\n{title} — {url}"
+            text = 'A notícia mais quente sobre Python:\n'
+            text += f'<a href="{url}">{title}</a>'
         except Exception as e:
             self.logger.error(e)
 
-        if update is not None and context is not None:
-            self.reply_message(update, context, text)
+        if update is not None:
+            return self.reply_text(update, text)
         else:
-            self.send_text(text)
+            return self.send_text(text)
 
-    def reply_message(self, update, context, text):
-        person_name = update.effective_user.full_name
-        if not text:
-            text = "Ocorreu algum problema e não consegui atender seu pedido."
-        text = f"{person_name}, " + text
-        update.message.reply_text(text)
+    def get_memes(self, update=None, context=None):
+        if update is not None and context is not None:
+            return self.reply_photo(update, get_random_meme_image())
+        else:
+            return self.send_photo(get_random_meme_image())
 
-    @staticmethod
-    def reply_meme(update, context):
-        update.message.reply_photo(photo=get_random_meme_image())
-
-    def send_message(self, update, context):
-        text = update.message.text.replace("/send", "")
-        context.bot.send_message(chat_id=self.chat_id, text=text)
-
-    def send_text(self, text):
-        self.bot.send_message(chat_id=self.chat_id, text=text)
-
-    def send_image(self, url):
-        self.bot.send_photo(chat_id=self.chat_id, photo=url)
-
-    def send_memes(self):
-        def send_meme():
-            self.send_image(get_random_meme_image())
-
-        self.schedule_manager.add_schedule(send_meme, UM_DIA_EM_SEGUNDOS)
-
-    def about(self, update, context):
-        text = "este bot foi feito pela comunidade de Python PUG-SE para levar informações importantes sobre a linguagem Python e eventos da comunidade.\nPara saber quais as funcionalidades do bot digite /help \nPara saber mais ou contribuir com o projeto: https://github.com/pug-se/Bot-PUG-SE"
-        self.reply_message(update, context, text)
-
-    def init_schedules(self):
-        self.send_memes()
+    def get_projects(self, update=None, context=None):
+        repo_url = 'http://api.github.com/orgs/pug-se/repos'
+        text = 'Os projetos da comunidade estão no '
+        text += f'<a href="{repo_url}">GitHub</a>\n\n'
+        
+        url = 'https://api.github.com/orgs/pug-se/repos'
+        info_dict = utils.get_json(url)
+        i = 1
+        for info in info_dict:
+            name = info['name']
+            description = info['description']
+            url = info['html_url']
+            text += f'{i})  <a href="{url}">{name}</a>: {description}\n'
+            i += 1
+        if update is not None:
+            return self.reply_text(update, text)
+        return text
+    
+    def add_schedules(self):
         self.schedule_manager.add_schedule(
-            self.get_udemy_coupons, UM_DIA_EM_SEGUNDOS / 4
+            self.get_memes, 
+            UM_DIA_EM_SEGUNDOS,
         )
-        self.schedule_manager.add_schedule(self.get_python_news, UM_DIA_EM_SEGUNDOS * 2)
-
+        self.schedule_manager.add_schedule(
+            self.get_udemy_coupons, 
+            UM_DIA_EM_SEGUNDOS / 4,
+        )
+        self.schedule_manager.add_schedule(
+            self.get_python_news, 
+            UM_DIA_EM_SEGUNDOS * 2,
+        )
+    
     def __init__(self):
         self.updater = Updater(token=token, use_context=True)
         self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
+        # add commands
         self.dp = self.updater.dispatcher
-        self.dp.add_handler(CommandHandler("start", self.start))
-        self.dp.add_handler(CommandHandler("send", self.send_message))
+        self.dp.add_handler(CommandHandler("say", self.say))
         self.dp.add_handler(CommandHandler("news", self.get_python_news))
         self.dp.add_handler(CommandHandler("udemy", self.get_udemy_coupons))
-        self.dp.add_handler(CommandHandler("memes", self.reply_meme))
-        self.dp.add_handler(CommandHandler("about", self.about))
-        self.updater.start_polling()
-        self.init_schedules()
+        self.dp.add_handler(CommandHandler("memes", self.get_memes))
+        self.dp.add_handler(CommandHandler("about", self.get_about))
+        self.dp.add_handler(CommandHandler("projects", self.get_projects))
+
+    def start(self):
+        #self.add_schedules()
+        
+        if environment == 'PRODUCTION':
+            app_name = 'pugse-telegram-bot'
+            self.updater.start_webhook(
+                listen="0.0.0.0",
+                port=port,
+                url_path=token,
+            )
+            self.updater.bot.setWebhook(
+                f'https://{app_name}.herokuapp.com/{token}',
+            )
+        else:
+            self.updater.start_polling()
         self.updater.idle()
 
-
 if __name__ == "__main__":
-    PUGSEBot()
+    PUGSEBot().start()
