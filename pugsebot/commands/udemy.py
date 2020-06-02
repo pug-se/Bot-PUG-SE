@@ -9,20 +9,11 @@ class Udemy(Command):
         name = 'udemy'
         help = 'Coleta os cupons da Udemy'
         reply_function_name = 'reply_text'
+        schedule_interval = UM_DIA_EM_SEGUNDOS
         super().__init__(
             name, help, reply_function_name,
+            schedule_interval,
         )
-
-    def schedule(self):
-        '''
-        def send_udemy_coupons():
-            bot.send_message(self.function(bot))
-        bot.schedule_manager.add_schedule(
-            send_udemy_coupons, 
-            UM_DIA_EM_SEGUNDOS,
-        )
-        '''
-        return False
 
     def function(self, update=None, context=None):
         text = ''
@@ -46,4 +37,4 @@ class Udemy(Command):
         except Exception as error:
             logger.error(error)
 
-        return {'update': update, 'text':text}
+        return text

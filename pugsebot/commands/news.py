@@ -9,19 +9,11 @@ class News(Command):
         name = 'news'
         help = 'Coleta notícias sobre Python'
         reply_function_name = 'reply_text'
+        schedule_interval = UM_DIA_EM_SEGUNDOS * 7
         super().__init__(
             name, help, reply_function_name,
+            schedule_interval,
         )
-
-    def schedule(self):
-        '''
-        def send_news():
-            bot.send_message(get_python_news())
-        bot.schedule_manager.add_schedule(
-            send_news, UM_DIA_EM_SEGUNDOS * 7,
-        )
-        '''
-        return False
 
     def function(self, update=None, context=None):
         text = ''
@@ -38,4 +30,4 @@ class News(Command):
         except Exception as error:
             logger.error(error)
 
-        return {'update': update, 'text':text}
+        return text

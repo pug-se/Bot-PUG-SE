@@ -24,7 +24,7 @@ class PUGSEBot:
 
     def reply_text(self, **kwargs):
         update = kwargs['update']
-        text = kwargs['text']
+        text = kwargs['response']
         if text:
             update.message.reply_text(
                 text,
@@ -34,13 +34,13 @@ class PUGSEBot:
 
     def reply_photo(self, **kwargs):
         update = kwargs['update']
-        photo = kwargs['photo']
+        photo = kwargs['response']
         if photo:
             update.message.reply_photo(photo=photo)
         return photo
 
     def send_text(self, **kwargs):
-        text = kwargs['text']
+        text = kwargs['response']
         if text and self.chat_id:
             self.bot.send_message(
                 chat_id=self.chat_id, 
@@ -50,7 +50,7 @@ class PUGSEBot:
         return text
 
     def send_photo(self, **kwargs):
-        photo = kwargs['photo']
+        photo = kwargs['response']
         if photo and self.chat_id:
             self.bot.send_photo(
                 chat_id=self.chat_id, 
@@ -58,15 +58,8 @@ class PUGSEBot:
             )
         return photo
 
-    def add_schedules(self):
-        for command_module in self.command_module_list:
-            schedule = getattr(command_module, 'schedule', None)
-            if schedule:
-                schedule(self)
-
     def __init__(self, token):
         self.updater = Updater(token, use_context=True)
-        self.schedule_manager = utils.ScheduleManager()
         self.bot = self.updater.bot
         self.add_commands()
 
@@ -75,7 +68,6 @@ class PUGSEBot:
             return bot_reply_func(
                 **create_content_func(update,context),
             )
-        #import pdb;pdb.set_trace()
         return reply_content
 
     def add_commands(self):
@@ -84,7 +76,7 @@ class PUGSEBot:
         self.dp = self.updater.dispatcher
         for command_module in self.command_module_list:
             command = command_module.name
-            content_function = command_module.function
+            content_function = command_module.do_command
             reply_method = getattr(
                 self, 
                 command_module.reply_function_name,
@@ -108,8 +100,6 @@ class PUGSEBot:
         )    
 
     def start(self):
-        #self.add_schedules()
-
         if environment == 'PRODUCTION':
             app_name = 'pugse-telegram-bot'
             self.updater.start_webhook(

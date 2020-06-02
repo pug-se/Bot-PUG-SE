@@ -61,18 +61,12 @@ class Memes(Command):
         name = 'memes'
         help = 'Coleta memes de programação'
         reply_function_name = 'reply_photo'
+        schedule_interval = UM_DIA_EM_SEGUNDOS
         super().__init__(
             name, help, reply_function_name,
+            schedule_interval,
         )
-
-    def schedule(self):
-        '''
-        def send_meme():
-            bot.send_image(get_random_meme_image())
-        bot.schedule_manager.add_schedule(send_meme, UM_DIA_EM_SEGUNDOS)
-        '''
-        return False
 
     def function(self, update=None, context=None):
         random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
-        return {'update': update, 'photo': random_image_function()}
+        return random_image_function()

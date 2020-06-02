@@ -9,12 +9,11 @@ class Projects(Command):
         name = 'projects'
         help = 'Mostra os projetos do PUGSE no GitHub'
         reply_function_name = 'reply_text'
+        schedule_interval = None
         super().__init__(
             name, help, reply_function_name,
+            schedule_interval,
         )
-
-    def schedule(self):
-        return False
 
     def function(self, update=None, context=None):
         repo_url = 'http://api.github.com/orgs/pug-se/repos'
@@ -30,4 +29,4 @@ class Projects(Command):
             url = info['html_url']
             text += f'{i}) <a href="{url}">{name}</a>: {description}\n'
             i += 1
-        return {'update': update, 'text':text}
+        return text

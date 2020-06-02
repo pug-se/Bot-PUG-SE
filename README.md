@@ -16,11 +16,10 @@
     - name (nome do comando)
     - help (descrição geral do comando)
     - reply_function_name (nome da função do bot que será chamada no resultado da function)
-    - schedule (função que descreve o schedule do comando)
-    - function (código do seu comando)
-4) Em functions/__init__.py, adicione .seuMódulo import SeuComandoClasse 
-4) Em functions/__init__.py, adicione SeuComandoClasse() em command_list
+    - interval (intervalo em segundos para a execução agendada, use None se não quiser agendar)
+4) Implemente function (código do seu comando)
+5) Em commands/__init__.py, adicione .seuMódulo import SeuComandoClasse 
+6) Em commands/__init__.py, adicione SeuComandoClasse() em command_list
 
 # Testes
-1) Adicione a variável de ambiente TELEGRAM_KEY_TEST (token do Telegram)
-2) Execute o comando ``python ./pugsebot/tests.py``
+1) Execute o comando ``python ./pugsebot/tests.py``

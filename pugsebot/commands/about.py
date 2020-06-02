@@ -13,13 +13,12 @@ class About(Command):
         name = 'about'
         help = 'Informações sobre o bot'
         reply_function_name = 'reply_text'
+        schedule_interval = None
         super().__init__(
             name, help, reply_function_name,
+            schedule_interval,
         )
-
-    def schedule(self):
-        return False
 
     def function(self, update=None, context=None):
         text = REPLY_MESSAGE
-        return {'update': update, 'text':text}
+        return text
