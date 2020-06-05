@@ -1,7 +1,3 @@
-import logging
-import threading
-import time
-
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -10,6 +6,9 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'\
     ' AppleWebKit/537.36 (KHTML, like Gecko)'\
     ' Chrome/39.0.2171.95 Safari/537.36'}
+
+UM_DIA_EM_SEGUNDOS = 60 * 60 * 24
+UMA_HORA_EM_SEGUNDOS = 60 * 60
 
 def get_html_soup(url):
     soup = None
@@ -20,11 +19,6 @@ def get_html_soup(url):
         pass
     return soup
 
-def bot_reply(reply_method, content):
-    def reply(update=None, context=None):
-        return reply_method(update, content)
-    return reply
-
 def get_json(url):
     result_dict = {}
     try:
@@ -34,44 +28,43 @@ def get_json(url):
         pass
     return result_dict
 
-class Schedule:
-    def __init__(self, job, interval):
-        self.job = job
+class Schedule():
+    def __init__(self, function, message_type, interval):
+        self.function = function 
         self.interval = interval
-        self.thread = None
-        self.logger = logging.getLogger('Schedule')
+        if "photo" in message_type:
+            self.format = 'photo'
+        else:
+            self.format = 'text'
 
-    def run_thread(self, unused):
-        while True:
-            time.sleep(self.interval)
-            try:
-                name = self.job.__name__
-                self.logger.info(
-                    f'{name} running')
-                self.job()
-            except Exception as error:
-                self.logger.error(error)
+class Command():
+    def __init__(
+        self, name, help, 
+        reply_function_name,
+        schedule_interval,
+        ):
+            self.name = name
+            self.help = help
+            self.reply_function_name = reply_function_name
+            self.interval = schedule_interval
 
-    def start(self):
-        if self.thread:
-            return
-        self.thread = threading.Thread(
-            target=self.run_thread,
-            args=(self,),
-            daemon=True,
-        )
-        self.thread.start()
+    def do_command(self, update=None, context=None):
+        return {
+            'update': update, 
+            'response':self.function(update, context),
+        }
 
-class ScheduleManager:
-    def __init__(self):
-        self.logger = logging.getLogger('ScheduleManager')
-        self.schedules = {}
+    def function(self): # abstract method
+        raise NotImplemented
 
-    def add_schedule(self, job, interval):
-        name = job.__name__
-        self.logger.info(
-            f'Scheduling {name} with {interval/3600} hours of interval...')
-        if name not in self.schedules:
-            schedule = Schedule(job, interval)
-            self.schedules[name] = schedule
-            schedule.start()
+    def get_schedule(self): # abstract method
+        if self.interval:
+            def get_result():
+                return self.function()
+            return Schedule(
+                get_result,
+                self.reply_function_name,
+                self.interval,
+            )
+        else:
+            return None

@@ -1,6 +1,6 @@
 import random
 
-from utils import get_html_soup, bot_reply
+from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
 URL_VIDA_PROGRAMADOR_RANDOM = BASE_URL_VIDA_PROGRAMADOR + '+rand'
@@ -56,15 +56,17 @@ MEMES_IMAGES_FUNCTIONS = [
     get_url_image_turnoff_us,
 ]
 
-def get_random_meme_image():
-    random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
-    return random_image_function()
+class Memes(Command):
+    def __init__(self):
+        name = 'memes'
+        help = 'Coleta memes de programação'
+        reply_function_name = 'reply_photo'
+        schedule_interval = UM_DIA_EM_SEGUNDOS
+        super().__init__(
+            name, help, reply_function_name,
+            schedule_interval,
+        )
 
-def reply(reply_image):
-    return bot_reply(reply_image, get_random_meme_image())
-
-def schedule(schedule_manager, send_image, timeout):
-    def send_meme():
-        send_image(get_random_meme_image())
-
-    schedule_manager.add_schedule(send_meme, timeout)
+    def function(self, update=None, context=None):
+        random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
+        return random_image_function()
