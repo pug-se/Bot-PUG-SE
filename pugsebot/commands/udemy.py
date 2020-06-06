@@ -6,13 +6,11 @@ logger = logging.getLogger('Udemy')
 
 class Udemy(Command):
     def __init__(self):
-        name = 'udemy'
-        help = 'Coleta os cupons da Udemy'
-        reply_function_name = 'reply_text'
-        schedule_interval = UM_DIA_EM_SEGUNDOS
         super().__init__(
-            name, help, reply_function_name,
-            schedule_interval,
+            name='udemy',
+            help_text='Coleta os cupons da Udemy',
+            reply_function_name='reply_text',
+            schedule_interval=UM_DIA_EM_SEGUNDOS,
         )
 
     def function(self, update=None, context=None):

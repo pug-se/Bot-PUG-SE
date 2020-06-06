@@ -58,13 +58,11 @@ MEMES_IMAGES_FUNCTIONS = [
 
 class Memes(Command):
     def __init__(self):
-        name = 'memes'
-        help = 'Coleta memes de programação'
-        reply_function_name = 'reply_photo'
-        schedule_interval = UM_DIA_EM_SEGUNDOS
         super().__init__(
-            name, help, reply_function_name,
-            schedule_interval,
+            name='memes',
+            help_text='Coleta memes de programação',
+            reply_function_name='reply_photo',
+            schedule_interval=UM_DIA_EM_SEGUNDOS,
         )
 
     def function(self, update=None, context=None):

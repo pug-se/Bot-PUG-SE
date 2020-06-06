@@ -1,17 +1,12 @@
 import unittest
-from datetime import datetime
-from unittest import mock
-import os
+import json
 
 from telegram.update import Update
-from telegram.ext.callbackcontext import CallbackContext
 from telegram.message import Message
-from telegram.ext import Updater
-
-import json 
 
 import bot
 import utils
+# pylint: disable=C0411
 import commands
 import do_schedules
 
@@ -22,19 +17,20 @@ def mock_update(message_text):
     )
     return Update(0, message=message)
 
+# pylint: disable=W0613
 def mock_reply_method(update=None, content=None):
     return mock_update(content)
 
 class TestPUGSEBot(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bot = bot.PUGSEBot(bot.token)        
+        cls.bot = bot.PUGSEBot(bot.token)
         cls.bot.chat_id = None
 
     def test_add_commands(self):
         handler_list = self.bot.dp.handlers[0]
         self.assertEqual(
-            len(handler_list) - 1, 
+            len(handler_list) - 1,
             len(commands.command_list),
         )
         name_list1 = [
@@ -45,7 +41,7 @@ class TestPUGSEBot(unittest.TestCase):
             name_list2.append(handler.command[0])
         self.assertEqual(
             set(name_list1).symmetric_difference(set(name_list2)),
-             set(['help']),
+            set(['help']),
         )
 
     def test_help(self):
@@ -54,7 +50,7 @@ class TestPUGSEBot(unittest.TestCase):
             handler.command[0] for handler in handler_list
         ]
         self.assertIn('help', name_list)
- 
+
 class TestUtils(unittest.TestCase):
     def test_UM_DIA_EM_SEGUNDOS(self):
         self.assertEqual(
@@ -72,31 +68,29 @@ class TestUtils(unittest.TestCase):
 
         soup = utils.get_html_soup('test')
         self.assertIsNone(soup)
-    
+
     def test_get_json(self):
         result = utils.get_json('test')
         self.assertIsInstance(result, dict)
 
     def test_Command(self):
-        with self.assertRaises(TypeError):
-            utils.Command(None, None, None).function()
+        with self.assertRaises(NotImplementedError):
+            utils.Command(None, None, None, None).function()
 
         class MockCommand(utils.Command):
             def __init__(self):
-                name = 'test'
-                help = 'test'
-                reply_function_name = 'reply_text'
-                schedule_interval = None
                 super().__init__(
-                    name, help, reply_function_name,
-                    schedule_interval,
+                    name='test',
+                    help_text='test',
+                    reply_function_name='reply_text',
+                    schedule_interval=None,
                 )
             def function(self, update=None, context=None):
                 return 'test'
         command = MockCommand()
         result = command.do_command()
         self.assertEqual(
-            set(['update','response']), 
+            set(['update', 'response']),
             set(result.keys()),
         )
         self.assertIsNone(result['update'])
@@ -105,9 +99,9 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(command.function(), 'test')
         self.assertEqual(result['response'], 'test')
         self.assertEqual(command.name, 'test')
-        self.assertEqual(command.help, 'test')
+        self.assertEqual(command.help_text, 'test')
         self.assertEqual(
-            command.reply_function_name, 
+            command.reply_function_name,
             'reply_text',
         )
 
@@ -131,13 +125,11 @@ class TestDoSchedules(unittest.TestCase):
     def test_get_schedule_list(self):
         class MockCommand(utils.Command):
             def __init__(self):
-                name = 'test'
-                help = 'test'
-                reply_function_name = 'reply_text'
-                schedule_interval = 1
                 super().__init__(
-                    name, help, reply_function_name,
-                    schedule_interval,
+                    name='test',
+                    help_text='test',
+                    reply_function_name='reply_text',
+                    schedule_interval=1,
                 )
             def function(self, update=None, context=None):
                 return 'test'
@@ -147,58 +139,56 @@ class TestDoSchedules(unittest.TestCase):
         self.assertEqual(
             schedule_list[-1].function(), 'test',
         )
-    
+
     def test_send_message(self):
         text = 'Estou sendo testado! Desculpe o incomodo...'
         schedule = utils.Schedule(
-            lambda update=None, context=None: text,
-        'text', 1,
+            lambda update=None, context=None: text, 'text', 1,
         )
         response = do_schedules.send_message(
-            schedule.function(), 
+            schedule.function(),
             bot.target_chat_id,
         )
         self.assertEqual(response.status_code, 200)
-        
+
         result_dict = json.loads(response.text)
         self.assertTrue(result_dict['ok'])
         self.assertEqual(
-            str(result_dict['result']['chat']['id']), 
+            str(result_dict['result']['chat']['id']),
             bot.target_chat_id,
         )
         self.assertTrue(
-            result_dict['result']['from']['is_bot'], 
+            result_dict['result']['from']['is_bot'],
         )
         self.assertEqual(
-            str(result_dict['result']['text']), 
+            str(result_dict['result']['text']),
             text,
-        )       
-        
+        )
+
     def test_send_photo(self):
         text = 'http://www.ellasaude.com.br/blog/wp-content'\
             '/uploads/2017/10/128-768x404.jpg'
         schedule = utils.Schedule(
-            lambda update=None, context=None: text,
-        'photo', 1,
+            lambda update=None, context=None: text, 'photo', 1,
         )
         response = do_schedules.send_photo(
-            schedule.function(), 
+            schedule.function(),
             bot.target_chat_id,
         )
         self.assertEqual(response.status_code, 200)
-        
+
         result_dict = json.loads(response.text)
         self.assertTrue(result_dict['ok'])
         self.assertEqual(
-            str(result_dict['result']['chat']['id']), 
+            str(result_dict['result']['chat']['id']),
             bot.target_chat_id,
         )
         self.assertTrue(
-            result_dict['result']['from']['is_bot'], 
+            result_dict['result']['from']['is_bot'],
         )
         self.assertIsNotNone(
-            result_dict['result']['photo'], 
-        )  
+            result_dict['result']['photo'],
+        )
 
 class TestAbout(unittest.TestCase):
     def test_function(self):
@@ -206,13 +196,13 @@ class TestAbout(unittest.TestCase):
 
 class TestMemes(unittest.TestCase):
     def test_get_url_image_vida_programador(self):
-        pass   
-    
+        pass
+
     def test_get_url_image_turnoff_us(self):
-        pass   
+        pass
 
     def test_get_random_meme_image(self):
-        pass  
+        pass
 
 class TestNews(unittest.TestCase):
     def test_function(self):
@@ -242,4 +232,3 @@ class TestUdemy(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

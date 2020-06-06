@@ -4,7 +4,7 @@ import os
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
-import utils
+# pylint: disable=C0411
 from commands import command_list
 
 logging.basicConfig(
@@ -22,7 +22,8 @@ class PUGSEBot:
     chat_id = target_chat_id
     command_module_list = command_list
 
-    def reply_text(self, **kwargs):
+    @staticmethod
+    def reply_text(**kwargs):
         update = kwargs['update']
         text = kwargs['response']
         if text:
@@ -32,7 +33,8 @@ class PUGSEBot:
             )
         return text
 
-    def reply_photo(self, **kwargs):
+    @staticmethod
+    def reply_photo(**kwargs):
         update = kwargs['update']
         photo = kwargs['response']
         if photo:
@@ -43,7 +45,7 @@ class PUGSEBot:
         text = kwargs['response']
         if text and self.chat_id:
             self.bot.send_message(
-                chat_id=self.chat_id, 
+                chat_id=self.chat_id,
                 text=text,
                 parse_mode=ParseMode.HTML,
             )
@@ -53,21 +55,20 @@ class PUGSEBot:
         photo = kwargs['response']
         if photo and self.chat_id:
             self.bot.send_photo(
-                chat_id=self.chat_id, 
+                chat_id=self.chat_id,
                 photo=photo,
             )
         return photo
 
-    def __init__(self, token):
-        self.updater = Updater(token, use_context=True)
+    def __init__(self, bot_token):
+        self.updater = Updater(bot_token, use_context=True)
         self.bot = self.updater.bot
         self.add_commands()
 
-    def reply_with_command(self, bot_reply_func, create_content_func): 
+    @staticmethod
+    def reply_with_command(bot_reply_func, create_content_func):
         def reply_content(update=None, context=None):
-            return bot_reply_func(
-                **create_content_func(update,context),
-            )
+            return bot_reply_func(**create_content_func(update, context),)
         return reply_content
 
     def add_commands(self):
@@ -78,14 +79,14 @@ class PUGSEBot:
             command = command_module.name
             content_function = command_module.do_command
             reply_method = getattr(
-                self, 
+                self,
                 command_module.reply_function_name,
             )
 
-            text += f'/{command}: {command_module.help}\n'
+            text += f'/{command}: {command_module.help_text}\n'
             self.dp.add_handler(
                 CommandHandler(
-                    command, 
+                    command,
                     self.reply_with_command(
                         reply_method,
                         content_function,
@@ -93,11 +94,10 @@ class PUGSEBot:
                 ),
             )
 
-        def help(update, context):
-            return self.send_text(text=text)            
-        self.dp.add_handler(
-                CommandHandler('help' , help)
-        )    
+        # pylint: disable=W0613
+        def help_command(update, context):
+            return self.send_text(response=text)
+        self.dp.add_handler(CommandHandler('help', help_command))
 
     def start(self):
         if environment == 'PRODUCTION':

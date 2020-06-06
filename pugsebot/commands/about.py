@@ -10,13 +10,11 @@ REPLY_MESSAGE = (
 
 class About(Command):
     def __init__(self):
-        name = 'about'
-        help = 'Informações sobre o bot'
-        reply_function_name = 'reply_text'
-        schedule_interval = None
         super().__init__(
-            name, help, reply_function_name,
-            schedule_interval,
+            name='about',
+            help_text='Informações sobre o bot',
+            reply_function_name='reply_text',
+            schedule_interval=None,
         )
 
     def function(self, update=None, context=None):
