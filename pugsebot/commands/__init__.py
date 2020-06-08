@@ -1,4 +1,5 @@
 from .about import About
+from .links import Links
 from .memes import Memes
 from .news import News
 from .projects import Projects
@@ -7,5 +8,5 @@ from .udemy import Udemy
 
 command_list = [
     Udemy(), News(), Projects(), Memes(),
-    Say(), About(),
+    Say(), About(), Links(),
 ]
