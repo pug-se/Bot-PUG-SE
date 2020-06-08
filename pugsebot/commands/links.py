@@ -1,6 +1,7 @@
 from utils import Command
 
 REPLY_MESSAGE = (
+    "Alguns links úteis sobre Python e o PUG-SE:\n"
     "http://se.python.org.br/\n" \
     "https://www.python.org/\n" \
     "https://wiki.python.org.br/PythonBrasil\n" \
