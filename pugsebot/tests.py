@@ -6,7 +6,6 @@ from telegram.message import Message
 
 import bot
 import utils
-# pylint: disable=C0411
 import commands
 import do_schedules
 
@@ -17,7 +16,6 @@ def mock_update(message_text):
     )
     return Update(0, message=message)
 
-# pylint: disable=W0613
 def mock_reply_method(update=None, content=None):
     return mock_update(content)
 

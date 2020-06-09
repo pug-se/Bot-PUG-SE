@@ -40,7 +40,6 @@ class Schedule():
             self.format = 'text'
 
 class Command():
-    # pylint: disable=C0330
     def __init__(
         self,
         name,

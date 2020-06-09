@@ -4,7 +4,6 @@ import os
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
-# pylint: disable=C0411
 from commands import command_list
 
 logging.basicConfig(
@@ -22,8 +21,7 @@ class PUGSEBot:
     chat_id = target_chat_id
     command_module_list = command_list
 
-    @staticmethod
-    def reply_text(**kwargs):
+    def reply_text(self, **kwargs):
         update = kwargs['update']
         text = kwargs['response']
         if text:
@@ -33,8 +31,7 @@ class PUGSEBot:
             )
         return text
 
-    @staticmethod
-    def reply_photo(**kwargs):
+    def reply_photo(self, **kwargs):
         update = kwargs['update']
         photo = kwargs['response']
         if photo:
@@ -65,8 +62,7 @@ class PUGSEBot:
         self.bot = self.updater.bot
         self.add_commands()
 
-    @staticmethod
-    def reply_with_command(bot_reply_func, create_content_func):
+    def reply_with_command(self, bot_reply_func, create_content_func):
         def reply_content(update=None, context=None):
             return bot_reply_func(**create_content_func(update, context),)
         return reply_content
@@ -94,7 +90,6 @@ class PUGSEBot:
                 ),
             )
 
-        # pylint: disable=W0613
         def help_command(update, context):
             return self.send_text(response=text)
         self.dp.add_handler(CommandHandler('help', help_command))

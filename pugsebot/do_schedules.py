@@ -5,7 +5,6 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from bot import target_chat_id, token
 from utils import UMA_HORA_EM_SEGUNDOS
-# pylint: disable=C0411
 import commands
 
 def get_schedule_list():
@@ -33,7 +32,6 @@ def send_message(text, chat_id):
     r = requests.post(base + 'sendMessage', data=data)
     return r
 
-# pylint: disable=W0621
 def send_content(schedule, chat_id):
     result = None
     if schedule.format == 'text':
@@ -42,7 +40,6 @@ def send_content(schedule, chat_id):
         result = send_photo(schedule.function(), chat_id)
     return result
 
-# pylint: disable=W0621
 def add_schedule(sched, function, args, interval, jitter):
     sched.add_job(
         function,
