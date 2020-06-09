@@ -1,3 +1,3 @@
 web: python ./pugsebot/bot.py
-release: python ./pugsebot/tests.py
+release: ./run_tests.sh
 clock:  python ./pugsebot/do_schedules.py
