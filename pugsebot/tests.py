@@ -190,7 +190,15 @@ class TestDoSchedules(unittest.TestCase):
 
 class TestAbout(unittest.TestCase):
     def test_function(self):
-        pass
+        result = commands.About().function()
+        self.assertIn('comunidade', result)
+        self.assertIn('contribuir', result)
+
+class TestLinks(unittest.TestCase):
+    def test_function(self):
+        result = commands.Links().function()
+        self.assertIn('links', result)
+        self.assertIn('Python', result)
 
 class TestMemes(unittest.TestCase):
     def test_get_url_image_vida_programador(self):
