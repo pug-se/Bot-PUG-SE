@@ -22,4 +22,4 @@
 6) Em commands/__init__.py, adicione SeuComandoClasse() em command_list
 
 # Testes
-1) Execute o comando ``python ./pugsebot/tests.py``
+1) Execute o comando ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
