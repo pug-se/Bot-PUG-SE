@@ -1,6 +1,8 @@
+import abc
+import json
+
 import requests
 from bs4 import BeautifulSoup
-import json
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'\
@@ -30,7 +32,7 @@ def get_json(url):
 
 class Schedule():
     def __init__(self, function, message_type, interval):
-        self.function = function 
+        self.function = function
         self.interval = interval
         if "photo" in message_type:
             self.format = 'photo'
@@ -39,25 +41,28 @@ class Schedule():
 
 class Command():
     def __init__(
-        self, name, help, 
+        self,
+        name,
+        help_text,
         reply_function_name,
         schedule_interval,
-        ):
-            self.name = name
-            self.help = help
-            self.reply_function_name = reply_function_name
-            self.interval = schedule_interval
+    ):
+        self.name = name
+        self.help_text = help_text
+        self.reply_function_name = reply_function_name
+        self.interval = schedule_interval
 
     def do_command(self, update=None, context=None):
         return {
-            'update': update, 
-            'response':self.function(update, context),
+            'update': update,
+            'response': self.function(update, context),
         }
 
-    def function(self): # abstract method
-        raise NotImplemented
+    @abc.abstractmethod
+    def function(self, update=None, context=None):
+        raise NotImplementedError
 
-    def get_schedule(self): # abstract method
+    def get_schedule(self):
         if self.interval:
             def get_result():
                 return self.function()
@@ -66,5 +71,4 @@ class Command():
                 self.reply_function_name,
                 self.interval,
             )
-        else:
-            return None
+        return None

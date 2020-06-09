@@ -10,13 +10,11 @@ REPLY_MESSAGE = (
 
 class Links(Command):
     def __init__(self):
-        name = 'links'
-        help = 'Mostrar links úteis sobre Python e da PUG-SE.'
-        reply_function_name = 'reply_text'
-        schedule_interval = None
         super().__init__(
-            name, help, reply_function_name,
-            schedule_interval,
+            name='links',
+            help_text='Mostrar links úteis sobre Python e da PUG-SE.',
+            reply_function_name='reply_text',
+            schedule_interval=None,
         )
 
     def function(self, update=None, context=None):

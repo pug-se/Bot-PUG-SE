@@ -6,13 +6,11 @@ logger = logging.getLogger('News')
 
 class News(Command):
     def __init__(self):
-        name = 'news'
-        help = 'Coleta notícias sobre Python'
-        reply_function_name = 'reply_text'
-        schedule_interval = UM_DIA_EM_SEGUNDOS * 7
         super().__init__(
-            name, help, reply_function_name,
-            schedule_interval,
+            name='news',
+            help_text='Coleta notícias sobre Python',
+            reply_function_name='reply_text',
+            schedule_interval=UM_DIA_EM_SEGUNDOS * 7,
         )
 
     def function(self, update=None, context=None):
