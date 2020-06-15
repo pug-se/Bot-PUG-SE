@@ -104,19 +104,19 @@ class TestUtils(unittest.TestCase):
         )
 
     def test_Schedule(self):
-        schedule = utils.Schedule(None, 'send_photo', None)
+        schedule = utils.Schedule('test', None, 'send_photo', None)
         self.assertEqual(schedule.format, 'photo')
 
-        schedule = utils.Schedule(None, 'send_text', None)
+        schedule = utils.Schedule('test', None, 'send_text', None)
         self.assertEqual(schedule.format, 'text')
 
-        schedule = utils.Schedule(None, 'reply_text', None)
+        schedule = utils.Schedule('test', None, 'reply_text', None)
         self.assertEqual(schedule.format, 'text')
 
-        schedule = utils.Schedule(None, 'reply_photo', None)
+        schedule = utils.Schedule('test', None, 'reply_photo', None)
         self.assertEqual(schedule.format, 'photo')
 
-        schedule = utils.Schedule(None, 'teste', None)
+        schedule = utils.Schedule('test', None, 'teste', None)
         self.assertEqual(schedule.format, 'text')
 
 class TestDoSchedules(unittest.TestCase):
@@ -141,6 +141,7 @@ class TestDoSchedules(unittest.TestCase):
     def test_send_message(self):
         text = 'Estou sendo testado! Desculpe o incomodo...'
         schedule = utils.Schedule(
+            'test',
             lambda update=None, context=None: text, 'text', 1,
         )
         response = do_schedules.send_message(
@@ -167,6 +168,7 @@ class TestDoSchedules(unittest.TestCase):
         text = 'http://www.ellasaude.com.br/blog/wp-content'\
             '/uploads/2017/10/128-768x404.jpg'
         schedule = utils.Schedule(
+            'test',
             lambda update=None, context=None: text, 'photo', 1,
         )
         response = do_schedules.send_photo(

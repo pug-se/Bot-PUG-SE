@@ -5,10 +5,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.base import ConflictingIdError
 
-import os 
+import os
 
 from bot import target_chat_id, token
-from utils import UMA_HORA_EM_SEGUNDOS
 import commands
 
 import logging
@@ -66,12 +65,12 @@ def add_schedule(sched, function, args, jitter):
         job_interval = job.trigger.interval
         if job_interval != trigger.interval:
             job.reschedule(trigger)
-            
-def get_scheduler(background=False):
+
+def get_scheduler(background=False, url=database_url):
     config = {
         'apscheduler.jobstores.default': {
         'type': 'sqlalchemy',
-        'url': database_url,
+        'url': url,
         },
     }
     if background:
@@ -81,7 +80,7 @@ def get_scheduler(background=False):
 if __name__ == '__main__':
     schedule_list = get_schedule_list()
     if schedule_list:
-        logger.info(f'Checking jobs')
+        logger.info('Checking jobs')
         sched = get_scheduler(background=True)
         sched.start()
         for schedule in schedule_list:
@@ -92,6 +91,6 @@ if __name__ == '__main__':
                 jitter=0#UMA_HORA_EM_SEGUNDOS // 20,
             )
         sched.shutdown()
-        logger.info(f'Starting Scheduler')
+        logger.info('Starting Scheduler')
         sched = get_scheduler()
         sched.start()

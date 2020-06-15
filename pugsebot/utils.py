@@ -32,7 +32,7 @@ def get_json(url):
 
 class Schedule():
     def __init__(self, name, function, message_type, interval):
-        self.name = name 
+        self.name = name
         self.function = function
         self.interval = interval
         if "photo" in message_type:
