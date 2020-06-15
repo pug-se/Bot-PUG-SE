@@ -31,7 +31,8 @@ def get_json(url):
     return result_dict
 
 class Schedule():
-    def __init__(self, function, message_type, interval):
+    def __init__(self, name, function, message_type, interval):
+        self.name = name 
         self.function = function
         self.interval = interval
         if "photo" in message_type:
@@ -64,10 +65,9 @@ class Command():
 
     def get_schedule(self):
         if self.interval:
-            def get_result():
-                return self.function()
             return Schedule(
-                get_result,
+                self.name + '_function',
+                self.function,
                 self.reply_function_name,
                 self.interval,
             )

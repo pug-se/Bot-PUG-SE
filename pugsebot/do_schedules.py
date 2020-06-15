@@ -1,11 +1,20 @@
 import requests
 
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.jobstores.base import ConflictingIdError
+
+import os 
 
 from bot import target_chat_id, token
 from utils import UMA_HORA_EM_SEGUNDOS
 import commands
+
+import logging
+logger = logging.getLogger('apscheduler.scheduler')
+
+database_url = os.environ.get('DATABASE_URL')
 
 def get_schedule_list():
     schedules = [
@@ -40,23 +49,49 @@ def send_content(schedule, chat_id):
         result = send_photo(schedule.function(), chat_id)
     return result
 
-def add_schedule(sched, function, args, interval, jitter):
-    sched.add_job(
+def add_schedule(sched, function, args, jitter):
+    name = args[0].name
+    trigger = IntervalTrigger(seconds=args[0].interval, jitter=jitter)
+    try:
+        sched.add_job(
         function,
-        IntervalTrigger(seconds=interval, jitter=jitter),
+        trigger,
         args=args,
+        id=name,
     )
+    except ConflictingIdError:
+        logger.info(f'Updating {name}')
+        job = sched.get_job(name)
+        job.modify(func=function)
+        job_interval = job.trigger.interval
+        if job_interval != trigger.interval:
+            job.reschedule(trigger)
+            
+def get_scheduler(background=False):
+    config = {
+        'apscheduler.jobstores.default': {
+        'type': 'sqlalchemy',
+        'url': database_url,
+        },
+    }
+    if background:
+        return BackgroundScheduler(config)
+    return BlockingScheduler(config)
 
 if __name__ == '__main__':
     schedule_list = get_schedule_list()
     if schedule_list:
-        sched = BlockingScheduler()
+        logger.info(f'Checking jobs')
+        sched = get_scheduler(background=True)
+        sched.start()
         for schedule in schedule_list:
             add_schedule(
                 sched,
                 send_content,
                 args=[schedule, target_chat_id],
-                interval=schedule.interval,
-                jitter=UMA_HORA_EM_SEGUNDOS * 3
+                jitter=0#UMA_HORA_EM_SEGUNDOS // 20,
             )
+        sched.shutdown()
+        logger.info(f'Starting Scheduler')
+        sched = get_scheduler()
         sched.start()
