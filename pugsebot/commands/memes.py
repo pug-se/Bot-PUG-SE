@@ -1,6 +1,6 @@
 import random
 
-from utils import Command, get_html_soup#, UM_DIA_EM_SEGUNDOS
+from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
 URL_VIDA_PROGRAMADOR_RANDOM = BASE_URL_VIDA_PROGRAMADOR + '+rand'
