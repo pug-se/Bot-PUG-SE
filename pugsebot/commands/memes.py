@@ -1,6 +1,6 @@
 import random
 
-from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
+from utils import Command, get_html_soup#, UM_DIA_EM_SEGUNDOS
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
 URL_VIDA_PROGRAMADOR_RANDOM = BASE_URL_VIDA_PROGRAMADOR + '+rand'
@@ -62,7 +62,7 @@ class Memes(Command):
             name='memes',
             help_text='Coleta memes de programação',
             reply_function_name='reply_photo',
-            schedule_interval=UM_DIA_EM_SEGUNDOS / 24 #UM_DIA_EM_SEGUNDOS * 2,
+            schedule_interval=60 * 60 * 35, #UM_DIA_EM_SEGUNDOS * 2,
         )
 
     def function(self, update=None, context=None):
