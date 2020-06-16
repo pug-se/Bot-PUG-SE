@@ -9,6 +9,10 @@
     - TELEGRAM_CHAT_ID (id do grupo onde o bot irá rodar)
 2) Execute o comando ``python ./pugsebot/bot.py``
 
+# Schedules
+1) Configure uma base de dados
+2) Defina a variável DATABASE_URL, que deve seguir o formato de url definido pelo <a href="https://docs.sqlalchemy.org/en/13/core/engines.html">SQLAlchemy</a>
+
 # Adicionando um novo comando
 1) Crie um módulo na pasta commands/
 2) Crie uma classe e herde da classe utils.Command
