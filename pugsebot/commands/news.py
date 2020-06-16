@@ -2,6 +2,8 @@ import logging
 
 from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
 
+CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
+
 logger = logging.getLogger('News')
 
 class News(Command):
@@ -11,6 +13,7 @@ class News(Command):
             help_text='Coleta notícias sobre Python',
             reply_function_name='reply_text',
             schedule_interval=UM_DIA_EM_SEGUNDOS * 7,
+            expire=CACHE_EXPIRES,
         )
 
     def function(self, update=None, context=None):

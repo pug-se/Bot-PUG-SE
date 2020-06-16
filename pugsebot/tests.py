@@ -1,5 +1,7 @@
 import unittest
 import json
+import random
+import time
 
 from telegram.update import Update
 from telegram.message import Message
@@ -235,6 +237,30 @@ class TestUdemy(unittest.TestCase):
         result = commands.Udemy().function()
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
+
+class TestCache(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cache = utils.Cache('test', 1)
+
+    def test_no_defined(self):
+        key = 'test_no_defined'
+        self.assertIsNone(self.cache.get(key))
+
+    def test_store(self):
+        key = 'test_store'
+        value = str(random.random())
+        self.cache.set(key, value)
+        self.assertEqual(value, self.cache.get(key))
+        self.assertEqual(value, self.cache.get(key))
+
+    def test_expire(self):
+        key = 'test_expire'
+        value = str(random.random())
+        self.cache.set(key, value)
+        self.assertEqual(value, self.cache.get(key))
+        time.sleep(2)
+        self.assertIsNone(self.cache.get(key))
 
 if __name__ == '__main__':
     unittest.main()
