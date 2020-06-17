@@ -93,7 +93,7 @@ class Command():
         self.help_text = help_text
         self.reply_function_name = reply_function_name
         self.interval = schedule_interval
-        self.cache = Cache(name if name is not None else 'foo', expire)
+        self.cache = Cache(name, expire)
 
     def do_command(self, update=None, context=None):
         cached_value = self.cache.get(self.name)
