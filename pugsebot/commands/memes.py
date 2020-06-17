@@ -2,6 +2,8 @@ import random
 
 from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
 
+CACHE_EXPIRES = 1800
+
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
 URL_VIDA_PROGRAMADOR_RANDOM = BASE_URL_VIDA_PROGRAMADOR + '+rand'
 URL_VIDA_PROGRAMADOR_TAG_TIRINHA = (

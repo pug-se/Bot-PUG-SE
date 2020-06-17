@@ -1,6 +1,8 @@
 import logging
 
-from utils import Command, get_json
+from utils import Command, get_json, UM_DIA_EM_SEGUNDOS
+
+CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
 logger = logging.getLogger('projects')
 
@@ -11,6 +13,7 @@ class Projects(Command):
             help_text='Mostra os projetos do PUGSE no GitHub',
             reply_function_name='reply_text',
             schedule_interval=None,
+            expire=CACHE_EXPIRES,
         )
 
     def function(self, update=None, context=None):

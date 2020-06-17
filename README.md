@@ -7,6 +7,7 @@
 1) Adicione as seguintes variáveis de ambiente:
     - TELEGRAM_KEY  (token do Telegram)
     - TELEGRAM_CHAT_ID (id do grupo onde o bot irá rodar)
+    - DATABASE_URL (opcional, URL de conexão com o banco de dados PostgreSQL)
 2) Execute o comando ``python ./pugsebot/bot.py``
 
 # Schedules
