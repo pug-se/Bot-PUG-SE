@@ -46,10 +46,10 @@ class Cache():
     @classmethod
     def init_cache_manager(cls):
         if cls.cache_manager is None:
-            if 'POSTGRESQL_URL' in os.environ:
+            if 'DATABASE_URL' in os.environ:
                 cache_opts = {
                     'cache.type': 'ext:database',
-                    'cache.url': os.environ['POSTGRESQL_URL'],
+                    'cache.url': os.environ['DATABASE_URL'],
                     'cache.lock_dir': 'lock'
                 }
             else:
