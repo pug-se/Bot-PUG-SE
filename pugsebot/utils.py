@@ -95,27 +95,27 @@ class Command():
         self.interval = schedule_interval
         self.cache = Cache(name, expire)
 
-    def do_command(self, update=None, context=None):
-        cached_value = self.cache.get(self.name)
-        if cached_value is None:
-            cached_value = self.function(update, context)
-            self.cache.set(self.name, cached_value)
-
-        return {
-            'update': update,
-            'response': cached_value,
-        }
-
     @abc.abstractmethod
     def function(self, update=None, context=None):
         raise NotImplementedError
 
+    def get_result(self, update=None, context=None):
+        cached_value = self.cache.get(self.name)
+        if cached_value is None:
+            cached_value = self.function(update, context)
+            self.cache.set(self.name, cached_value)
+        return cached_value
+
+    def do_command(self, update=None, context=None):
+        return {
+            'update': update,
+            'response': self.get_result(update, context),
+        }
+
     def get_schedule(self):
         if self.interval:
-            def get_result():
-                return self.function()
             return Schedule(
-                get_result,
+                self.get_result,
                 self.reply_function_name,
                 self.interval,
             )
