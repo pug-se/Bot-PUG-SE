@@ -2,6 +2,8 @@ import logging
 
 from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
 
+CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS
+
 logger = logging.getLogger('Udemy')
 
 class Udemy(Command):
@@ -11,6 +13,7 @@ class Udemy(Command):
             help_text='Coleta os cupons da Udemy',
             reply_function_name='reply_text',
             schedule_interval=UM_DIA_EM_SEGUNDOS,
+            expire=CACHE_EXPIRES,
         )
 
     def function(self, update=None, context=None):
