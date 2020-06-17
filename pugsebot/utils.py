@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
 
+import logging
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)'\
     ' AppleWebKit/537.36 (KHTML, like Gecko)'\
@@ -35,7 +37,7 @@ def get_json(url):
 
 class Cache():
     cache_manager = None
-
+    cache_log = logging.getLogger('Cache')
     def __init__(self, name, expire):
         self.init_cache_manager()
         if expire is not None:
@@ -65,6 +67,7 @@ class Cache():
     def get(self, key):
         if (self.cache is None) or (not self.cache.has_key(key)):
             return None
+        self.cache_log.info(f'Hit for key {key}')
         return self.cache.get(key)
 
     def set(self, key, value):
