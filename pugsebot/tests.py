@@ -243,6 +243,10 @@ class TestCache(unittest.TestCase):
     def setUpClass(cls):
         cls.cache = utils.Cache('test', 1)
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.cache.clear()
+
     def test_no_defined(self):
         key = 'test_no_defined'
         self.assertIsNone(self.cache.get(key))

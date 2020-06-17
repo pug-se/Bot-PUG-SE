@@ -71,6 +71,9 @@ class Cache():
         if self.cache is not None:
             self.cache.set_value(key, value)
 
+    def clear(self):
+        self.cache.clear()
+
 class Schedule():
     def __init__(self, function, message_type, interval):
         self.function = function
