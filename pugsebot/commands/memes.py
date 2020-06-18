@@ -66,7 +66,7 @@ class Memes(CommandBase):
             name='memes',
             help_text='Coleta memes de programação',
             reply_function_name='reply_photo',
-            schedule_interval=5,#UM_DIA_EM_SEGUNDOS * 2,
+            schedule_interval=UM_DIA_EM_SEGUNDOS * 2,
             expire=CACHE_EXPIRES,
         )
 

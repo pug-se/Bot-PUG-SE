@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 sched,
                 _run_schedule,
                 args=[schedule],
-                jitter=0,#UMA_HORA_EM_SEGUNDOS // 20,
+                jitter=UMA_HORA_EM_SEGUNDOS // 20,
             )
         logger.info('Resuming Scheduler')
         sched.resume()
