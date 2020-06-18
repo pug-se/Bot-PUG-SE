@@ -1,6 +1,6 @@
-from utils import Command
+from utils.command_base import CommandBase
 
-class Say(Command):
+class Say(CommandBase):
     def __init__(self):
         super().__init__(
             name='say',

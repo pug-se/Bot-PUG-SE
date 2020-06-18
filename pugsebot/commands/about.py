@@ -1,4 +1,4 @@
-from utils import Command
+from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (
     'Este bot foi feito pela comunidade de Python PUG-SE para levar '\
@@ -8,7 +8,7 @@ REPLY_MESSAGE = (
     'https://github.com/pug-se/Bot-PUG-SE'
 )
 
-class About(Command):
+class About(CommandBase):
     def __init__(self):
         super().__init__(
             name='about',

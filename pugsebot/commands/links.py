@@ -1,4 +1,4 @@
-from utils import Command
+from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (
     "Alguns links úteis sobre Python e o PUG-SE:\n"
@@ -8,7 +8,7 @@ REPLY_MESSAGE = (
     "https://pythonbrasil.org.br/\n"
 )
 
-class Links(Command):
+class Links(CommandBase):
     def __init__(self):
         super().__init__(
             name='links',

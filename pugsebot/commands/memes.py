@@ -1,6 +1,8 @@
 import random
 
-from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
+from utils.command_base import CommandBase
+from utils.request import get_html_soup
+from utils.time import UM_DIA_EM_SEGUNDOS
 
 CACHE_EXPIRES = 1800
 
@@ -58,13 +60,14 @@ MEMES_IMAGES_FUNCTIONS = [
     get_url_image_turnoff_us,
 ]
 
-class Memes(Command):
+class Memes(CommandBase):
     def __init__(self):
         super().__init__(
             name='memes',
             help_text='Coleta memes de programação',
             reply_function_name='reply_photo',
-            schedule_interval=UM_DIA_EM_SEGUNDOS * 2,
+            schedule_interval=60 * 40,#UM_DIA_EM_SEGUNDOS * 2,
+            expire=CACHE_EXPIRES,
         )
 
     def function(self, update=None, context=None):

@@ -1,12 +1,10 @@
-import logging
-
-from utils import Command, get_json, UM_DIA_EM_SEGUNDOS
+from utils.command_base import CommandBase
+from utils.request import get_json
+from utils.time import UM_DIA_EM_SEGUNDOS
 
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
-logger = logging.getLogger('projects')
-
-class Projects(Command):
+class Projects(CommandBase):
     def __init__(self):
         super().__init__(
             name='projects',
