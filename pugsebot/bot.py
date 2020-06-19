@@ -81,7 +81,7 @@ class PUGSEBot:
             )
 
         def help_command(update, context):
-            return self.send_text(response=text)
+            return self.reply_text(update=update, response=text)
         self.dp.add_handler(CommandHandler('help', help_command))
 
     def start(self):
