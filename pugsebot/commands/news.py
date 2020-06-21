@@ -1,12 +1,11 @@
-import logging
-
-from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
+from utils.command_base import CommandBase
+from utils.request import get_html_soup
+from utils.time import UM_DIA_EM_SEGUNDOS
+from utils.logging import command_logger
 
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
-logger = logging.getLogger('News')
-
-class News(Command):
+class News(CommandBase):
     def __init__(self):
         super().__init__(
             name='news',
@@ -29,6 +28,6 @@ class News(Command):
             text = 'A notícia mais quente sobre Python:\n'
             text += f'<a href="{url}">{title}</a>'
         except Exception as error:
-            logger.error(error)
-
+            command_logger.info(f'Error at {self.name}')
+            command_logger.error(error)
         return text

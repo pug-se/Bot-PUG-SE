@@ -1,2 +1,2 @@
-web: python ./pugsebot/bot.py
-clock:  python ./pugsebot/do_schedules.py
+web: python pugsebot/bot.py
+clock:  python pugsebot/run_schedules.py

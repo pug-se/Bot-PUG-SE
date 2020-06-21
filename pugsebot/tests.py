@@ -1,7 +1,7 @@
 import unittest
 import json
-import random
 import time
+import datetime
 
 from telegram.update import Update
 from telegram.message import Message
@@ -9,7 +9,8 @@ from telegram.message import Message
 import bot
 import utils
 import commands
-import do_schedules
+
+utils.logging.set_level('ERROR')
 
 def mock_update(message_text):
     message = Message(
@@ -24,7 +25,7 @@ def mock_reply_method(update=None, content=None):
 class TestPUGSEBot(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bot = bot.PUGSEBot(bot.token)
+        cls.bot = bot.PUGSEBot(utils.environment.TOKEN)
         cls.bot.chat_id = None
 
     def test_add_commands(self):
@@ -51,33 +52,154 @@ class TestPUGSEBot(unittest.TestCase):
         ]
         self.assertIn('help', name_list)
 
-class TestUtils(unittest.TestCase):
+class TestUtilsCache(unittest.TestCase):
+    def setUp(self):
+        expire_time = \
+            datetime.datetime.now()\
+            + datetime.timedelta(seconds=3)
+        self.expire_time = expire_time
+        self.text = 'test text'
+        self.key = 'test'
+        utils.cache.Cache.create(
+            key=self.key,
+            result=self.text,
+            expire_time=self.expire_time,
+        )
+
+    def tearDown(self):
+        try:
+            test = utils.cache.Cache.get(
+            utils.cache.Cache.key == self.key)
+            test.delete_instance()
+        except:
+            pass
+
+    def test_get_value_valid(self):
+        test = utils.cache.Cache.get_value(self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.result, self.text)
+        self.assertEqual(test.expire_time, self.expire_time)
+
+    def test_get_value_invalid_key(self):
+        test = utils.cache.Cache.get_value('test2')
+        self.assertIsNone(test)
+
+    def test_get_value_invalid_expire(self):
+        test = utils.cache.Cache.get_value('test')
+        self.assertIsNotNone(test)
+        time.sleep(4)
+        test = utils.cache.Cache.get_value('test')
+        self.assertIsNone(test)
+
+
+    def test_set_value_new(self):
+        test = utils.cache.Cache.get(
+        utils.cache.Cache.key == self.key)
+        test.delete_instance()
+        test = utils.cache.Cache.get_value('test')
+        self.assertIsNone(test)
+        new_time = 3
+        test = utils.cache.Cache.set_value(
+            self.key, self.text, new_time)
+        test = utils.cache.Cache.get_value(self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.result, self.text)
+        self.assertNotEqual(test.expire_time, self.expire_time)
+
+    def test_set_value_old(self):
+        new_time = 4
+        new_text = self.text + 'test'
+        test = utils.cache.Cache.set_value(
+            self.key, new_text, new_time)
+        test = utils.cache.Cache.get_value(self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.result, new_text)
+        self.assertNotEqual(
+            test.expire_time, self.expire_time)
+
+class TestUtilsTime(unittest.TestCase):
     def test_UM_DIA_EM_SEGUNDOS(self):
         self.assertEqual(
-            utils.UM_DIA_EM_SEGUNDOS, 60 * 60 * 24,
+            utils.time.UM_DIA_EM_SEGUNDOS, 60 * 60 * 24,
         )
 
     def test_UMA_HORA_EM_SEGUNDOS(self):
         self.assertEqual(
-            utils.UMA_HORA_EM_SEGUNDOS, 60 * 60,
+            utils.time.UMA_HORA_EM_SEGUNDOS, 60 * 60,
         )
 
+    def test_UMA_SEMANA_EM_SEGUNDOS(self):
+        self.assertEqual(
+            utils.time.UMA_SEMANA_EM_SEGUNDOS, 60 * 60 * 24 * 7,
+        )
+
+class TestUtilsRequest(unittest.TestCase):
     def test_get_html_soup(self):
-        soup = utils.get_html_soup('https://google.com')
+        soup = utils.request.get_html_soup('https://google.com')
         self.assertIn('Google', soup.text)
 
-        soup = utils.get_html_soup('test')
+        soup = utils.request.get_html_soup('test')
         self.assertIsNone(soup)
 
     def test_get_json(self):
-        result = utils.get_json('test')
+        result = utils.request.get_json('test')
         self.assertIsInstance(result, dict)
 
+    def test_telegram_send_photo(self):
+        text = 'Estou sendo testado! Desculpe o incomodo...'
+
+        response = utils.request.telegram_send_message(
+            text,
+            utils.environment.TARGET_CHAT_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        result_dict = json.loads(response.text)
+        self.assertTrue(result_dict['ok'])
+        self.assertEqual(
+            str(result_dict['result']['chat']['id']),
+            utils.environment.TARGET_CHAT_ID,
+        )
+        self.assertTrue(
+            result_dict['result']['from']['is_bot'],
+        )
+        self.assertEqual(
+            str(result_dict['result']['text']),
+            text,
+        )
+
+    def test_telegram_send_message(self):
+        text = 'http://www.ellasaude.com.br/blog/wp-content'\
+            '/uploads/2017/10/128-768x404.jpg'
+
+        response = utils.request.telegram_send_photo(
+            text,
+            utils.environment.TARGET_CHAT_ID,
+        )
+        self.assertEqual(response.status_code, 200)
+
+        result_dict = json.loads(response.text)
+        self.assertTrue(result_dict['ok'])
+        self.assertEqual(
+            str(result_dict['result']['chat']['id']),
+            utils.environment.TARGET_CHAT_ID,
+        )
+        self.assertTrue(
+            result_dict['result']['from']['is_bot'],
+        )
+        self.assertIsNotNone(
+            result_dict['result']['photo'],
+        )
+
+class TestUtilsCommand(unittest.TestCase):
     def test_Command(self):
         with self.assertRaises(NotImplementedError):
-            utils.Command(None, None, None, None).function()
+            utils.command_base.CommandBase(None, None, None, None).function()
 
-        class MockCommand(utils.Command):
+        class MockCommand(utils.command_base.CommandBase):
             def __init__(self):
                 super().__init__(
                     name='test',
@@ -105,90 +227,22 @@ class TestUtils(unittest.TestCase):
             'reply_text',
         )
 
+class TestUtilsSchedule(unittest.TestCase):
     def test_Schedule(self):
-        schedule = utils.Schedule(None, 'send_photo', None)
+        schedule = utils.schedule.Schedule('test', None, 'send_photo', None)
         self.assertEqual(schedule.format, 'photo')
 
-        schedule = utils.Schedule(None, 'send_text', None)
+        schedule = utils.schedule.Schedule('test', None, 'send_text', None)
         self.assertEqual(schedule.format, 'text')
 
-        schedule = utils.Schedule(None, 'reply_text', None)
+        schedule = utils.schedule.Schedule('test', None, 'reply_text', None)
         self.assertEqual(schedule.format, 'text')
 
-        schedule = utils.Schedule(None, 'reply_photo', None)
+        schedule = utils.schedule.Schedule('test', None, 'reply_photo', None)
         self.assertEqual(schedule.format, 'photo')
 
-        schedule = utils.Schedule(None, 'teste', None)
+        schedule = utils.schedule.Schedule('test', None, 'teste', None)
         self.assertEqual(schedule.format, 'text')
-
-class TestDoSchedules(unittest.TestCase):
-    def test_get_schedule_list(self):
-        class MockCommand(utils.Command):
-            def __init__(self):
-                super().__init__(
-                    name='test',
-                    help_text='test',
-                    reply_function_name='reply_text',
-                    schedule_interval=1,
-                )
-            def function(self, update=None, context=None):
-                return 'test'
-        commands.command_list.append(MockCommand())
-
-        schedule_list = do_schedules.get_schedule_list()
-        self.assertEqual(
-            schedule_list[-1].function(), 'test',
-        )
-
-    def test_send_message(self):
-        text = 'Estou sendo testado! Desculpe o incomodo...'
-        schedule = utils.Schedule(
-            lambda update=None, context=None: text, 'text', 1,
-        )
-        response = do_schedules.send_message(
-            schedule.function(),
-            bot.target_chat_id,
-        )
-        self.assertEqual(response.status_code, 200)
-
-        result_dict = json.loads(response.text)
-        self.assertTrue(result_dict['ok'])
-        self.assertEqual(
-            str(result_dict['result']['chat']['id']),
-            bot.target_chat_id,
-        )
-        self.assertTrue(
-            result_dict['result']['from']['is_bot'],
-        )
-        self.assertEqual(
-            str(result_dict['result']['text']),
-            text,
-        )
-
-    def test_send_photo(self):
-        text = 'http://www.ellasaude.com.br/blog/wp-content'\
-            '/uploads/2017/10/128-768x404.jpg'
-        schedule = utils.Schedule(
-            lambda update=None, context=None: text, 'photo', 1,
-        )
-        response = do_schedules.send_photo(
-            schedule.function(),
-            bot.target_chat_id,
-        )
-        self.assertEqual(response.status_code, 200)
-
-        result_dict = json.loads(response.text)
-        self.assertTrue(result_dict['ok'])
-        self.assertEqual(
-            str(result_dict['result']['chat']['id']),
-            bot.target_chat_id,
-        )
-        self.assertTrue(
-            result_dict['result']['from']['is_bot'],
-        )
-        self.assertIsNotNone(
-            result_dict['result']['photo'],
-        )
 
 class TestAbout(unittest.TestCase):
     def test_function(self):
@@ -237,34 +291,6 @@ class TestUdemy(unittest.TestCase):
         result = commands.Udemy().function()
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
-
-class TestCache(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.cache = utils.Cache('test', 1)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.cache.clear()
-
-    def test_no_defined(self):
-        key = 'test_no_defined'
-        self.assertIsNone(self.cache.get(key))
-
-    def test_store(self):
-        key = 'test_store'
-        value = str(random.random())
-        self.cache.set(key, value)
-        self.assertEqual(value, self.cache.get(key))
-        self.assertEqual(value, self.cache.get(key))
-
-    def test_expire(self):
-        key = 'test_expire'
-        value = str(random.random())
-        self.cache.set(key, value)
-        self.assertEqual(value, self.cache.get(key))
-        time.sleep(2)
-        self.assertIsNone(self.cache.get(key))
 
 if __name__ == '__main__':
     unittest.main()

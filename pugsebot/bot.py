@@ -1,24 +1,14 @@
-import logging
-import os
-
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
+from utils.logging import bot_logger
+from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
+
 from commands import command_list
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-
-token = os.environ['TELEGRAM_KEY']
-target_chat_id = os.environ['TELEGRAM_CHAT_ID']
-environment = os.environ.get('ENVIRONMENT', None)
-port = os.environ.get('PORT', None)
-
 class PUGSEBot:
-    logger = logging.getLogger('PUGSEBot')
-    chat_id = target_chat_id
+    logger = bot_logger
+    chat_id = TARGET_CHAT_ID
     command_module_list = command_list
 
     def reply_text(self, **kwargs):
@@ -91,23 +81,23 @@ class PUGSEBot:
             )
 
         def help_command(update, context):
-            return self.send_text(response=text)
+            return self.reply_text(update=update, response=text)
         self.dp.add_handler(CommandHandler('help', help_command))
 
     def start(self):
-        if environment == 'PRODUCTION':
+        if ENVIRONMENT_MODE == 'PRODUCTION':
             app_name = 'pugse-telegram-bot'
             self.updater.start_webhook(
                 listen="0.0.0.0",
-                port=port,
-                url_path=token,
+                port=PORT,
+                url_path=TOKEN,
             )
             self.updater.bot.setWebhook(
-                f'https://{app_name}.herokuapp.com/{token}',
+                f'https://{app_name}.herokuapp.com/{TOKEN}',
             )
         else:
             self.updater.start_polling()
         self.updater.idle()
 
 if __name__ == "__main__":
-    PUGSEBot(token).start()
+    PUGSEBot(TOKEN).start()

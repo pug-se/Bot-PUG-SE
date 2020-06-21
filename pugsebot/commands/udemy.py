@@ -1,12 +1,11 @@
-import logging
-
-from utils import Command, get_html_soup, UM_DIA_EM_SEGUNDOS
+from utils.command_base import CommandBase
+from utils.request import get_html_soup
+from utils.time import UM_DIA_EM_SEGUNDOS
+from utils.logging import command_logger
 
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS
 
-logger = logging.getLogger('Udemy')
-
-class Udemy(Command):
+class Udemy(CommandBase):
     def __init__(self):
         super().__init__(
             name='udemy',
@@ -36,6 +35,7 @@ class Udemy(Command):
                 text += f'{index}) <a href="{url}">{title}</a>\n'
                 index += 1
         except Exception as error:
-            logger.error(error)
+            command_logger.info(f'Error at {self.name}')
+            command_logger.error(error)
 
         return text
