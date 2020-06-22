@@ -2,7 +2,7 @@ from utils.command_base import CommandBase
 
 import os
 
-def _get_module_names():
+def get_module_names():
     path = os.path.dirname(os.path.abspath(__file__))
     modules_names = []
     for module_filename in os.listdir(path):
@@ -12,7 +12,7 @@ def _get_module_names():
                 module_filename.replace('.py', ''))
     return modules_names
 
-def _get_modules(modules_names):
+def get_modules(modules_names):
     modules = []
     for module_name in modules_names:
         modules.append(
@@ -21,7 +21,7 @@ def _get_modules(modules_names):
                 fromlist=[module_name]))
     return modules
 
-def _get_commands(modules):
+def get_commands(modules):
     command_list = []
     for module in modules:
         for attr_str in dir(module):
@@ -32,7 +32,7 @@ def _get_commands(modules):
                 command_list.append(attr())
     return command_list
 
-_modules_names = _get_module_names()
-_modules = _get_modules(_modules_names)
+_modules_names = get_module_names()
+_modules = get_modules(_modules_names)
 
-command_list = _get_commands(_modules)
+command_list = get_commands(_modules)
