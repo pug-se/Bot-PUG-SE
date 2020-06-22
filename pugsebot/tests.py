@@ -52,6 +52,38 @@ class TestPUGSEBot(unittest.TestCase):
         ]
         self.assertIn('help', name_list)
 
+class TestUtilsInit(unittest.TestCase):
+    def test_get_module_names(self):
+        names = commands._get_module_names()
+        for name in names:
+            self.assertTrue(
+                hasattr(commands, name)
+            )
+
+    def test_get_modules(self):
+        names = commands._get_module_names()
+        modules = commands._get_modules(names)
+
+        attr_names = dir(commands) 
+        attr_list = [
+            getattr(commands, attr_str) for attr_str in attr_names
+        ]
+
+        for module in modules:
+            self.assertIn(module, attr_list)
+    
+    def test_get_commands(self):
+        names = commands._get_module_names()
+        modules = commands._get_modules(names)
+        command_list = commands._get_commands(modules)
+
+        Base = utils.command_base.CommandBase
+        for command in command_list:
+            self.assertNotEqual(
+                type(command), Base)
+            self.assertTrue(
+                isinstance(command, Base))
+
 class TestUtilsCache(unittest.TestCase):
     def setUp(self):
         expire_time = \

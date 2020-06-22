@@ -61,7 +61,6 @@ confidence=
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
 disable=print-statement,
-        undefined-loop-variable,
         parameter-unpacking,
         unpacking-in-except,
         old-raise-syntax,
@@ -155,6 +154,7 @@ disable=print-statement,
         wrong-import-order,
         redefined-outer-name,
         duplicate-code, 
+        undefined-loop-variable,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

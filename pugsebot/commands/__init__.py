@@ -1,30 +1,38 @@
 from utils.command_base import CommandBase
 
 import os
-_path = os.path.dirname(os.path.abspath(__file__))
-_modules = os.listdir(_path)
 
-_modules = [
-    mod for mod in _modules if '.py' in mod and mod != "__init__.py"
-]
-_modules = [mod.replace('.py', '') for mod in _modules]
+def _get_module_names():
+    path = os.path.dirname(os.path.abspath(__file__))
+    modules_names = []
+    for module_filename in os.listdir(path):
+        if module_filename != '__init__.py'\
+                and '.py' in module_filename:
+            modules_names.append(
+                module_filename.replace('.py', ''))
+    return modules_names
 
-# import commands
-_modules_aux = _modules
-_modules = []
-for _module in _modules_aux:
-    _modules.append(
-        __import__(
-            'commands.' + _module,
-            fromlist=[_module]))
+def _get_modules(modules_names):
+    modules = []
+    for module_name in modules_names:
+        modules.append(
+            __import__(
+                'commands.' + module_name,
+                fromlist=[module_name]))
+    return modules
 
-# create command instances
-command_list = []
+def _get_commands(modules):
+    command_list = []
+    for module in modules:
+        for attr_str in dir(module):
+            attr = getattr(module, attr_str)
+            if not isinstance(attr, type) \
+                or attr == CommandBase: continue
+            if issubclass(attr, CommandBase):
+                command_list.append(attr())
+    return command_list
 
-for _module in _modules:
-    for _attr_str in dir(_module):
-        _attr = getattr(_module, _attr_str)
-        if not isinstance(_attr, type) \
-            or _attr == CommandBase: continue
-        if issubclass(_attr, CommandBase):
-            command_list.append(_attr())
+_modules_names = _get_module_names()
+_modules = _get_modules(_modules_names)
+
+command_list = _get_commands(_modules)
