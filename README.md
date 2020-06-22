@@ -2,6 +2,9 @@
 É o bot do Telegram para a comunidade PUG-SE.
 
 # Funcionalidades
+- Schedule
+- Cache
+- ...
 
 # Como executar
 1) Adicione as seguintes variáveis de ambiente:
@@ -22,9 +25,8 @@
     - help (descrição geral do comando)
     - reply_function_name (nome da função do bot que será chamada no resultado da function)
     - interval (intervalo em segundos para a execução agendada, use None se não quiser agendar)
+    - expire, (duração em segundos da validade da cache, None se não quiser)
 4) Implemente function (código do seu comando)
-5) Em commands/__init__.py, adicione .seuMódulo import SeuComandoClasse 
-6) Em commands/__init__.py, adicione SeuComandoClasse() em command_list
 
 # Testes
 1) Execute o comando ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)

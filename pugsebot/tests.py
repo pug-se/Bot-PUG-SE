@@ -246,13 +246,13 @@ class TestUtilsSchedule(unittest.TestCase):
 
 class TestAbout(unittest.TestCase):
     def test_function(self):
-        result = commands.About().function()
+        result = commands.about.About().function()
         self.assertIn('comunidade', result)
         self.assertIn('contribuir', result)
 
 class TestLinks(unittest.TestCase):
     def test_function(self):
-        result = commands.Links().function()
+        result = commands.links.Links().function()
         self.assertIn('links', result)
         self.assertIn('Python', result)
 
@@ -268,27 +268,27 @@ class TestMemes(unittest.TestCase):
 
 class TestNews(unittest.TestCase):
     def test_function(self):
-        result = commands.News().function()
+        result = commands.news.News().function()
         self.assertIn('notícia', result)
         self.assertIn('http', result)
 
 class TestProjects(unittest.TestCase):
     def test_function(self):
-        result = commands.Projects().function()
+        result = commands.projects.Projects().function()
         self.assertIn('projetos', result)
         self.assertIn('http', result)
 
 class TestSay(unittest.TestCase):
     def test_function(self):
-        result = commands.Say().function()
+        result = commands.say.Say().function()
         self.assertEqual('', result)
 
-        result = commands.Say().function(mock_update('test'))
+        result = commands.say.Say().function(mock_update('test'))
         self.assertEqual('test', result)
 
 class TestUdemy(unittest.TestCase):
     def test_function(self):
-        result = commands.Udemy().function()
+        result = commands.udemy.Udemy().function()
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
 
