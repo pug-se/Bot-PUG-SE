@@ -52,6 +52,38 @@ class TestPUGSEBot(unittest.TestCase):
         ]
         self.assertIn('help', name_list)
 
+class TestUtilsInit(unittest.TestCase):
+    def test_get_module_names(self):
+        names = commands.get_module_names()
+        for name in names:
+            self.assertTrue(
+                hasattr(commands, name)
+            )
+
+    def test_get_modules(self):
+        names = commands.get_module_names()
+        modules = commands.get_modules(names)
+
+        attr_names = dir(commands)
+        attr_list = [
+            getattr(commands, attr_str) for attr_str in attr_names
+        ]
+
+        for module in modules:
+            self.assertIn(module, attr_list)
+
+    def test_get_commands(self):
+        names = commands.get_module_names()
+        modules = commands.get_modules(names)
+        command_list = commands.get_commands(modules)
+
+        Base = utils.command_base.CommandBase
+        for command in command_list:
+            self.assertNotEqual(
+                type(command), Base)
+            self.assertTrue(
+                isinstance(command, Base))
+
 class TestUtilsCache(unittest.TestCase):
     def setUp(self):
         expire_time = \
@@ -246,13 +278,13 @@ class TestUtilsSchedule(unittest.TestCase):
 
 class TestAbout(unittest.TestCase):
     def test_function(self):
-        result = commands.About().function()
+        result = commands.about.About().function()
         self.assertIn('comunidade', result)
         self.assertIn('contribuir', result)
 
 class TestLinks(unittest.TestCase):
     def test_function(self):
-        result = commands.Links().function()
+        result = commands.links.Links().function()
         self.assertIn('links', result)
         self.assertIn('Python', result)
 
@@ -268,27 +300,27 @@ class TestMemes(unittest.TestCase):
 
 class TestNews(unittest.TestCase):
     def test_function(self):
-        result = commands.News().function()
+        result = commands.news.News().function()
         self.assertIn('notícia', result)
         self.assertIn('http', result)
 
 class TestProjects(unittest.TestCase):
     def test_function(self):
-        result = commands.Projects().function()
+        result = commands.projects.Projects().function()
         self.assertIn('projetos', result)
         self.assertIn('http', result)
 
 class TestSay(unittest.TestCase):
     def test_function(self):
-        result = commands.Say().function()
+        result = commands.say.Say().function()
         self.assertEqual('', result)
 
-        result = commands.Say().function(mock_update('test'))
+        result = commands.say.Say().function(mock_update('test'))
         self.assertEqual('test', result)
 
 class TestUdemy(unittest.TestCase):
     def test_function(self):
-        result = commands.Udemy().function()
+        result = commands.udemy.Udemy().function()
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
 
