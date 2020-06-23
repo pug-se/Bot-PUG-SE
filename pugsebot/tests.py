@@ -84,7 +84,11 @@ class TestUtilsInit(unittest.TestCase):
             self.assertTrue(
                 isinstance(command, Base))
 
-class TestUtilsCache(unittest.TestCase):
+class TestUtilsDatabaseCache(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.Cache = utils.database.Cache
+
     def setUp(self):
         expire_time = \
             datetime.datetime.now()\
@@ -92,7 +96,15 @@ class TestUtilsCache(unittest.TestCase):
         self.expire_time = expire_time
         self.text = 'test text'
         self.key = 'test'
-        utils.cache.Cache.create(
+        try:
+            # tenta deletar uma cache teste
+            # resultante de execuções interrompidas
+            cached_test = self.Cache.get(
+                self.Cache.key == self.key)
+            cached_test.delete_instance()
+        except:
+            pass
+        self.Cache.create(
             key=self.key,
             result=self.text,
             expire_time=self.expire_time,
@@ -100,41 +112,40 @@ class TestUtilsCache(unittest.TestCase):
 
     def tearDown(self):
         try:
-            test = utils.cache.Cache.get(
-            utils.cache.Cache.key == self.key)
+            test = self.Cache.get(
+            self.Cache.key == self.key)
             test.delete_instance()
         except:
             pass
 
     def test_get_value_valid(self):
-        test = utils.cache.Cache.get_value(self.key)
+        test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.result, self.text)
         self.assertEqual(test.expire_time, self.expire_time)
 
     def test_get_value_invalid_key(self):
-        test = utils.cache.Cache.get_value('test2')
+        test = self.Cache.get_value('test2')
         self.assertIsNone(test)
 
     def test_get_value_invalid_expire(self):
-        test = utils.cache.Cache.get_value('test')
+        test = self.Cache.get_value('test')
         self.assertIsNotNone(test)
         time.sleep(4)
-        test = utils.cache.Cache.get_value('test')
+        test = self.Cache.get_value('test')
         self.assertIsNone(test)
-
 
     def test_set_value_new(self):
-        test = utils.cache.Cache.get(
-        utils.cache.Cache.key == self.key)
+        test = self.Cache.get(
+        self.Cache.key == self.key)
         test.delete_instance()
-        test = utils.cache.Cache.get_value('test')
+        test = self.Cache.get_value('test')
         self.assertIsNone(test)
         new_time = 3
-        test = utils.cache.Cache.set_value(
+        test = self.Cache.set_value(
             self.key, self.text, new_time)
-        test = utils.cache.Cache.get_value(self.key)
+        test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.result, self.text)
@@ -143,14 +154,122 @@ class TestUtilsCache(unittest.TestCase):
     def test_set_value_old(self):
         new_time = 4
         new_text = self.text + 'test'
-        test = utils.cache.Cache.set_value(
+        test = self.Cache.set_value(
             self.key, new_text, new_time)
-        test = utils.cache.Cache.get_value(self.key)
+        test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.result, new_text)
         self.assertNotEqual(
             test.expire_time, self.expire_time)
+
+    def test_remove_value_exist(self):
+        test = self.Cache.get_value(self.key)
+        self.assertIsNotNone(test)
+        self.assertTrue(
+            self.Cache.remove_value(self.key))
+        test = self.Cache.get_value(self.key)
+        self.assertIsNone(test)
+
+    def test_remove_value_no_exist(self):
+        test = self.Cache.get_value('teste2')
+        self.assertIsNone(test)
+        self.assertFalse(
+            self.Cache.remove_value('teste2'))
+        test = self.Cache.get_value('teste2')
+        self.assertIsNone(test)
+
+class TestUtilsDatabaseCommandInfo(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.CommandInfo = utils.database.CommandInfo
+
+    def setUp(self):
+        self.command_name = 'test'
+        self.key = 'test'
+        self.info = 'test'
+        try:
+            # tenta deletar uma cache teste
+            # resultante de execuções interrompidas
+            info_test = self.CommandInfo.get(
+                (self.CommandInfo.command_name == self.command_name)\
+                    & (self.CommandInfo.key == self.key))
+            info_test.delete_instance()
+        except:
+            pass
+        self.CommandInfo.create(
+            command_name=self.command_name,
+            key=self.key,
+            info=self.info,
+        )
+
+    def tearDown(self):
+        try:
+            info_test = self.CommandInfo.get(
+            self.CommandInfo.key == self.key)
+            info_test.delete_instance()
+        except:
+            pass
+
+    def test_get_value_valid(self):
+        test = self.CommandInfo.get_value(self.command_name, self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.info, self.info)
+        self.assertEqual(test.command_name, self.command_name)
+
+    def test_get_value_invalid_key(self):
+        test = self.CommandInfo.get_value('test2', 'test2')
+        self.assertIsNone(test)
+
+    def test_set_value_new(self):
+        test = self.CommandInfo.get(
+                    (self.CommandInfo.command_name == self.command_name)\
+                    & (self.CommandInfo.key == self.key))
+        test.delete_instance()
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
+        self.assertIsNone(test)
+
+        new_info = 'test3'
+        test = self.CommandInfo.set_value(
+            self.command_name, self.key, new_info)
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.command_name, self.command_name)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.info, new_info)
+
+    def test_set_value_old(self):
+        new_info = 'test3'
+        test = self.CommandInfo.set_value(
+            self.command_name, self.key, new_info)
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
+        self.assertIsNotNone(test)
+        self.assertEqual(test.command_name, self.command_name)
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.info, new_info)
+
+    def test_remove_value_exist(self):
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
+        self.assertIsNotNone(test)
+        self.assertTrue(
+            self.CommandInfo.remove_value(
+                self.command_name, self.key))
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
+        self.assertIsNone(test)
+
+    def test_remove_value_no_exist(self):
+        test = self.CommandInfo.get_value(
+            self.command_name, 'teste2')
+        self.assertIsNone(test)
+        self.assertFalse(
+            self.CommandInfo.remove_value(
+                self.command_name, 'teste2'))
 
 class TestUtilsTime(unittest.TestCase):
     def test_UM_DIA_EM_SEGUNDOS(self):
@@ -226,38 +345,142 @@ class TestUtilsRequest(unittest.TestCase):
             result_dict['result']['photo'],
         )
 
-class TestUtilsCommand(unittest.TestCase):
-    def test_Command(self):
-        with self.assertRaises(NotImplementedError):
-            utils.command_base.CommandBase(None, None, None, None).function()
+class TestUtilsCommandBase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.message = 'test'
+        cls.name = 'test'
+        cls.help_text = 'test'
+        cls.reply_function_name = 'reply_text'
 
         class MockCommand(utils.command_base.CommandBase):
-            def __init__(self):
+            def __init__(self, interval=None, expire=None):
                 super().__init__(
-                    name='test',
-                    help_text='test',
-                    reply_function_name='reply_text',
-                    schedule_interval=None,
+                    name=cls.name,
+                    help_text=cls.help_text,
+                    reply_function_name=cls.reply_function_name,
+                    schedule_interval=interval,
+                    expire=expire,
                 )
             def function(self, update=None, context=None):
-                return 'test'
-        command = MockCommand()
+                return cls.message
+
+        cls.Command = MockCommand
+
+    def setUp(self):
+        utils.database.Cache.remove_value(self.name)
+        utils.database.CommandInfo.remove_value(
+            self.name, self.message)
+    def tearDown(self):
+        utils.database.Cache.remove_value(self.name)
+        utils.database.CommandInfo.remove_value(
+            self.name, self.message)
+
+    def test_set_info(self):
+        command = self.Command()
+        info = utils.database.CommandInfo.get_value(
+            command_name=self.name, key=self.message
+        )
+        self.assertIsNone(info)
+
+        text = 'test2'
+        command.set_info(self.message, text)
+        info = utils.database.CommandInfo.get_value(
+            command_name=self.name, key=self.message
+        )
+        self.assertIsNotNone(info)
+        self.assertEqual(info.key, self.message)
+        self.assertEqual(info.info, text)
+
+    def test_get_info(self):
+        command = self.Command()
+
+        info = command.get_info(self.message)
+        self.assertIsNone(info)
+
+        text = 'test2'
+        command.set_info(self.message, text)
+        info = command.get_info(self.message)
+        self.assertIsNotNone(info)
+        self.assertEqual(info, text)
+
+    def test_remove_info(self):
+        command = self.Command()
+        removed = command.remove_info(self.message)
+        self.assertFalse(removed)
+
+        text = 'test2'
+        command.set_info(self.message, text)
+
+        removed = command.remove_info(self.message)
+        self.assertTrue(removed)
+
+    def test_get_result_cache(self):
+        expire = 3
+        command = self.Command(expire=expire)
+
+        value = utils.database.Cache.get_value(self.name)
+        self.assertIsNone(value)
+
+        result = command.get_result()
+        self.assertEqual(result, self.message)
+
+        value = utils.database.Cache.get_value(self.name)
+        self.assertIsNotNone(value)
+        self.assertEqual(value.key, self.name)
+        self.assertEqual(value.result, self.message)
+
+    def test_get_result_no_cache(self):
+        command = self.Command()
+        result = command.get_result()
+        self.assertEqual(result, self.message)
+
+    def test_get_schedule(self):
+        command = self.Command()
+        schedule = command.get_schedule()
+        self.assertIsNone(schedule)
+
+        command_sched = self.Command(5)
+        schedule = command_sched.get_schedule()
+        self.assertTrue(
+            isinstance(schedule, utils.schedule.Schedule))
+
+    def test_function_not_implemented(self):
+        with self.assertRaises(NotImplementedError):
+            utils.command_base.CommandBase(None, None, None, None).function()
+    def test_function(self):
+        self.assertEqual(self.Command().function(), self.message)
+
+    def test_init(self):
+        command = self.Command()
+        self.assertEqual(command.name, self.name)
+        self.assertEqual(command.help_text, self.help_text)
+        self.assertEqual(
+            command.reply_function_name,
+            self.reply_function_name,
+        )
+
+        interval = 1
+        expire = 1
+        command = self.Command(interval, expire)
+        self.assertEqual(
+            command.interval, interval)
+        self.assertEqual(
+            command.expire, expire)
+
+    def test_do_command(self):
+        command = self.Command()
         result = command.do_command()
         self.assertEqual(
             set(['update', 'response']),
             set(result.keys()),
         )
         self.assertIsNone(result['update'])
-        result = command.do_command('test')
-        self.assertEqual(result['update'], 'test')
-        self.assertEqual(command.function(), 'test')
-        self.assertEqual(result['response'], 'test')
-        self.assertEqual(command.name, 'test')
-        self.assertEqual(command.help_text, 'test')
-        self.assertEqual(
-            command.reply_function_name,
-            'reply_text',
-        )
+
+        update = 'test'
+        result = command.do_command(update)
+        self.assertEqual(result['update'], update)
+        self.assertEqual(result['response'], self.message)
 
 class TestUtilsSchedule(unittest.TestCase):
     def test_Schedule(self):
