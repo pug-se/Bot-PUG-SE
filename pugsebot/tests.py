@@ -113,7 +113,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
     def tearDown(self):
         try:
             test = self.Cache.get(
-            self.Cache.key == self.key)
+                self.Cache.key == self.key)
             test.delete_instance()
         except:
             pass
@@ -130,17 +130,16 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_get_value_invalid_expire(self):
-        test = self.Cache.get_value('test')
+        test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         time.sleep(4)
-        test = self.Cache.get_value('test')
+        test = self.Cache.get_value(self.key)
         self.assertIsNone(test)
 
     def test_set_value_new(self):
-        test = self.Cache.get(
-        self.Cache.key == self.key)
+        test = self.Cache.get_value(self.key)
         test.delete_instance()
-        test = self.Cache.get_value('test')
+        test = self.Cache.get_value(self.key)
         self.assertIsNone(test)
         new_time = 3
         test = self.Cache.set_value(
@@ -172,11 +171,11 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_remove_value_no_exist(self):
-        test = self.Cache.get_value('teste2')
+        test = self.Cache.get_value('test2')
         self.assertIsNone(test)
         self.assertFalse(
-            self.Cache.remove_value('teste2'))
-        test = self.Cache.get_value('teste2')
+            self.Cache.remove_value('test2'))
+        test = self.Cache.get_value('test2')
         self.assertIsNone(test)
 
 class TestUtilsDatabaseCommandInfo(unittest.TestCase):
@@ -212,20 +211,21 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
             pass
 
     def test_get_value_valid(self):
-        test = self.CommandInfo.get_value(self.command_name, self.key)
+        test = self.CommandInfo.get_value(
+            self.command_name, self.key)
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.info, self.info)
         self.assertEqual(test.command_name, self.command_name)
 
     def test_get_value_invalid_key(self):
-        test = self.CommandInfo.get_value('test2', 'test2')
+        test = self.CommandInfo.get_value(
+            'test2', 'test2')
         self.assertIsNone(test)
 
     def test_set_value_new(self):
-        test = self.CommandInfo.get(
-                    (self.CommandInfo.command_name == self.command_name)\
-                    & (self.CommandInfo.key == self.key))
+        test = self.CommandInfo.get_value(
+                    self.command_name, self.key)
         test.delete_instance()
         test = self.CommandInfo.get_value(
             self.command_name, self.key)
@@ -371,6 +371,7 @@ class TestUtilsCommandBase(unittest.TestCase):
         utils.database.Cache.remove_value(self.name)
         utils.database.CommandInfo.remove_value(
             self.name, self.message)
+
     def tearDown(self):
         utils.database.Cache.remove_value(self.name)
         utils.database.CommandInfo.remove_value(
@@ -448,6 +449,7 @@ class TestUtilsCommandBase(unittest.TestCase):
     def test_function_not_implemented(self):
         with self.assertRaises(NotImplementedError):
             utils.command_base.CommandBase(None, None, None, None).function()
+
     def test_function(self):
         self.assertEqual(self.Command().function(), self.message)
 
