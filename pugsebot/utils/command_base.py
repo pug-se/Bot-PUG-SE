@@ -1,6 +1,6 @@
 import abc
 
-from .cache import Cache
+from .database import Cache, CommandInfo
 from .schedule import Schedule
 
 class CommandBase():
@@ -16,6 +16,21 @@ class CommandBase():
         self.reply_function_name = reply_function_name
         self.interval = schedule_interval
         self.expire = expire
+
+    def set_info(self, info_key, info):
+        return CommandInfo.set_value(
+            self.name, info_key, info)
+
+    def get_info(self, info_key):
+        command_info = CommandInfo.get_value(
+            self.name, info_key)
+        if command_info:
+            return command_info.info
+        return None
+
+    def remove_info(self, info_key):
+        return CommandInfo.remove_value(
+            self.name, info_key)
 
     @abc.abstractmethod
     def function(self, update=None, context=None):
