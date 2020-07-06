@@ -2,6 +2,6 @@
 
 set -e
 
-pylint pugsebot
+flake8
 
 python pugsebot/tests.py

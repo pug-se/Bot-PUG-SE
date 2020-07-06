@@ -35,11 +35,11 @@ class Cache(peewee.Model):
         now = datetime.datetime.now()
         try:
             cached_result = cls.get(
-                (cls.key == key) &\
-                (cls.expire_time > now)
+                (cls.key == key)
+                & (cls.expire_time > now)
             )
             cache_logger.info(
-                f'Hit for key: {key}'\
+                f'Hit for key: {key}'
                 f' and expire_time: {cached_result.expire_time}'
             )
             return cached_result
@@ -70,8 +70,9 @@ class CommandInfo(peewee.Model):
     def set_value(cls, command_name, key, info):
         try:
             command_info = cls.get(
-                (cls.command_name == command_name)\
-                    & (cls.key == key))
+                (cls.command_name == command_name)
+                & (cls.key == key)
+            )
             command_info.info = info
             command_info.save()
         except:
@@ -85,8 +86,9 @@ class CommandInfo(peewee.Model):
     def get_value(cls, command_name, key):
         try:
             command_info = cls.get(
-                (cls.command_name == command_name)\
-                    & (cls.key == key))
+                (cls.command_name == command_name)
+                & (cls.key == key)
+            )
             return command_info
         except:
             return None
@@ -95,8 +97,9 @@ class CommandInfo(peewee.Model):
     def remove_value(cls, command_name, key):
         try:
             command_info = cls.get(
-                (cls.command_name == command_name)\
-                    & (cls.key == key))
+                (cls.command_name == command_name)
+                & (cls.key == key)
+            )
             command_info.delete_instance()
             return True
         except:

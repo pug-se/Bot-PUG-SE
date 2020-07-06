@@ -191,8 +191,9 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
             # tenta deletar uma cache teste
             # resultante de execuções interrompidas
             info_test = self.CommandInfo.get(
-                (self.CommandInfo.command_name == self.command_name)\
-                    & (self.CommandInfo.key == self.key))
+                (self.CommandInfo.command_name == self.command_name)
+                & (self.CommandInfo.key == self.key)
+            )
             info_test.delete_instance()
         except:
             pass
@@ -204,8 +205,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
 
     def tearDown(self):
         try:
-            info_test = self.CommandInfo.get(
-            self.CommandInfo.key == self.key)
+            info_test = self.CommandInfo.get(self.CommandInfo.key == self.key)
             info_test.delete_instance()
         except:
             pass
@@ -224,8 +224,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_set_value_new(self):
-        test = self.CommandInfo.get_value(
-                    self.command_name, self.key)
+        test = self.CommandInfo.get_value(self.command_name, self.key)
         test.delete_instance()
         test = self.CommandInfo.get_value(
             self.command_name, self.key)
@@ -362,6 +361,7 @@ class TestUtilsCommandBase(unittest.TestCase):
                     schedule_interval=interval,
                     expire=expire,
                 )
+
             def function(self, update=None, context=None):
                 return cls.message
 

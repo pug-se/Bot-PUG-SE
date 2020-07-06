@@ -21,8 +21,8 @@ def _get_schedule_list():
 def _get_scheduler():
     config = {
         'apscheduler.jobstores.default': {
-        'type': 'sqlalchemy',
-        'url': DATABASE_URL,
+            'type': 'sqlalchemy',
+            'url': DATABASE_URL,
         },
     }
     return BackgroundScheduler(config, daemon=True)
@@ -46,10 +46,10 @@ def _add_schedule(sched, function, args, jitter):
         logger.info(f'Updating {name}')
         job = sched.get_job(name)
         job_interval = job.trigger.interval
-        if job_interval != trigger.interval: # alterar tudo
+        if job_interval != trigger.interval:  # alterar tudo
             job_data['replace_existing'] = True
             sched.add_job(**job_data)
-        else: # manter trigger antigo
+        else:  # manter trigger antigo
             job = sched.get_job(name)
             job.modify(
                 func=function, args=args,

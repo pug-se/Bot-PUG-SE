@@ -2,9 +2,9 @@ from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (
     "Alguns links úteis sobre Python e o PUG-SE:\n"
-    "http://se.python.org.br/\n" \
-    "https://www.python.org/\n" \
-    "https://wiki.python.org.br/PythonBrasil\n" \
+    "http://se.python.org.br/\n"
+    "https://www.python.org/\n"
+    "https://wiki.python.org.br/PythonBrasil\n"
     "https://pythonbrasil.org.br/\n"
 )
 

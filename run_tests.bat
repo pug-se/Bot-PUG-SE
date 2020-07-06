@@ -1,3 +1,3 @@
-python -m pylint pugsebot
+python -m flake8
 
 python pugsebot/tests.py
