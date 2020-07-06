@@ -26,8 +26,8 @@ def get_commands(modules):
     for module in modules:
         for attr_str in dir(module):
             attr = getattr(module, attr_str)
-            if not isinstance(attr, type) \
-                or attr == CommandBase: continue
+            if not isinstance(attr, type) or attr == CommandBase:
+                continue
             if issubclass(attr, CommandBase):
                 command_list.append(attr())
     return command_list
