@@ -549,5 +549,11 @@ class TestUdemy(unittest.TestCase):
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
 
+class TestFAQ(unittest.TestCase):
+    def test_function(self):
+        result = commands.faq.FAQ().function()
+        self.assertIn('O que é Python?', result)
+        self.assertIn('https://www.python.org/dev/peps/pep-0008', result)
+
 if __name__ == '__main__':
     unittest.main()
