@@ -3,6 +3,12 @@
 Este bot foi feito pela comunidade de Python PUG-SE para levar informações importantes sobre a linguagem Python e eventos da comunidade.
 Para saber quais as funcionalidades do bot, execute o mesmo e digite ``/help``
 
+# Estrutura do projeto
+- package utils: utilidades para o desenvolvimento/funcionamento do bot
+- package commands: comandos do bot
+- módulo bot.py: main do bot
+- módulo tests.py: testes do bot
+
 # Funcionalidades
 - Agendamento de comandos
 - Cache de comandos
