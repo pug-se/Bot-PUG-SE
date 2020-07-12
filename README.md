@@ -1,10 +1,13 @@
 # Bot-PUG-SE
 É o bot do Telegram para a comunidade PUG-SE.
+Este bot foi feito pela comunidade de Python PUG-SE para levar informações importantes sobre a linguagem Python e eventos da comunidade.
+Para saber quais as funcionalidades do bot, execute o mesmo e digite ``/help``
 
 # Funcionalidades
-- Schedule
-- Cache
-- ...
+- Agendamento de comandos
+- Cache de comandos
+- Acesso ao banco de dados
+- Comandos (descritos em /help)
 
 # Como executar
 1) Adicione as seguintes variáveis de ambiente:
@@ -18,11 +21,11 @@
 2) Defina a variável DATABASE_URL, que deve seguir o formato de url definido pelo <a href="https://docs.sqlalchemy.org/en/13/core/engines.html">SQLAlchemy</a>
 
 # Como ajudar no projeto: 
-1- Crie um branch a partir do branch dev
-2- Implemente suas alterações. 
-3- Adicione os testes em tests.py (usamos este framework https://docs.python.org/3/library/unittest.html)
-4- Rode o script de ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
-5- Faça um Pull Request para o dev e aguarde revisão
+1) Crie um branch a partir do branch dev
+2) Implemente suas alterações. 
+3) Adicione os testes em tests.py (usamos este framework https://docs.python.org/3/library/unittest.html)
+4) Rode o script de ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
+5) Faça um Pull Request para o dev e aguarde revisão
 
 # Adicionando um novo comando
 1) Crie um módulo no package commands
