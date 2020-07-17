@@ -63,7 +63,6 @@ class PUGSEBot:
         return commands_path
 
     def add_commands(self):
-        text = 'Comandos aceitos: \n'
         # add commands
         self.dp = self.updater.dispatcher
         command_module_list = get_commands_by_path(self.get_commands_path())
@@ -75,7 +74,6 @@ class PUGSEBot:
                 command_module.reply_function_name,
             )
 
-            text += f'/{command}: {command_module.help_text}\n'
             self.dp.add_handler(
                 CommandHandler(
                     command,
@@ -85,10 +83,6 @@ class PUGSEBot:
                     ),
                 ),
             )
-
-        def help_command(update, context):
-            return self.reply_text(update=update, response=text)
-        self.dp.add_handler(CommandHandler('help', help_command))
 
     def start(self):
         if ENVIRONMENT_MODE == 'PRODUCTION':

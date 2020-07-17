@@ -18,6 +18,7 @@ import commands.news
 import commands.projects
 import commands.say
 import commands.udemy
+import commands.help
 
 utils.logging.set_level('ERROR')
 
@@ -45,25 +46,12 @@ class TestPUGSEBot(unittest.TestCase):
     def test_add_commands(self):
         handler_list = self.bot.dp.handlers[0]
         command_list = utils.module.get_commands_by_path(get_commands_path())
-        self.assertEqual(
-            len(handler_list) - 1,
-            len(command_list),
-        )
+        self.assertEqual(len(handler_list), len(command_list))
         name_list1 = [command.name for command in command_list]
         name_list2 = []
         for handler in handler_list:
             name_list2.append(handler.command[0])
-        self.assertEqual(
-            set(name_list1).symmetric_difference(set(name_list2)),
-            set(['help']),
-        )
-
-    def test_help(self):
-        handler_list = self.bot.dp.handlers[0]
-        name_list = [
-            handler.command[0] for handler in handler_list
-        ]
-        self.assertIn('help', name_list)
+        self.assertEqual(set(name_list1), set(name_list2))
 
 class TestUtilsInit(unittest.TestCase):
     @classmethod
@@ -595,6 +583,13 @@ class TestFAQ(unittest.TestCase):
         result = commands.faq.FAQ().function()
         self.assertIn('O que é Python?', result)
         self.assertIn('https://www.python.org/dev/peps/pep-0008', result)
+
+class TestHelp(unittest.TestCase):
+    def test_function(self):
+        result = commands.help.Help().function()
+        self.assertIn('/help', result)
+        self.assertIn('/udemy', result)
+        self.assertIn('/news', result)
 
 if __name__ == '__main__':
     unittest.main()
