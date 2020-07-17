@@ -3,13 +3,11 @@ from telegram import ParseMode
 
 from utils.logging import bot_logger
 from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
-
-from commands import command_list
+from utils.module import get_commands
 
 class PUGSEBot:
     logger = bot_logger
     chat_id = TARGET_CHAT_ID
-    command_module_list = command_list
 
     def reply_text(self, **kwargs):
         update = kwargs['update']
@@ -58,10 +56,10 @@ class PUGSEBot:
         return reply_content
 
     def add_commands(self):
-        text = 'Comandos aceitos: \n'
         # add commands
         self.dp = self.updater.dispatcher
-        for command_module in self.command_module_list:
+        command_module_list = get_commands()
+        for command_module in command_module_list:
             command = command_module.name
             content_function = command_module.do_command
             reply_method = getattr(
@@ -69,7 +67,6 @@ class PUGSEBot:
                 command_module.reply_function_name,
             )
 
-            text += f'/{command}: {command_module.help_text}\n'
             self.dp.add_handler(
                 CommandHandler(
                     command,
@@ -79,10 +76,6 @@ class PUGSEBot:
                     ),
                 ),
             )
-
-        def help_command(update, context):
-            return self.reply_text(update=update, response=text)
-        self.dp.add_handler(CommandHandler('help', help_command))
 
     def start(self):
         if ENVIRONMENT_MODE == 'PRODUCTION':
