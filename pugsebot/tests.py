@@ -2,7 +2,6 @@ import unittest
 import json
 import time
 import datetime
-import os
 
 from telegram.update import Update
 from telegram.message import Message
@@ -32,11 +31,6 @@ def mock_update(message_text):
 def mock_reply_method(update=None, content=None):
     return mock_update(content)
 
-def get_commands_path():
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    commands_path = os.path.join(current_directory, 'commands')
-    return commands_path
-
 class TestPUGSEBot(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -45,7 +39,7 @@ class TestPUGSEBot(unittest.TestCase):
 
     def test_add_commands(self):
         handler_list = self.bot.dp.handlers[0]
-        command_list = utils.module.get_commands_by_path(get_commands_path())
+        command_list = utils.module.get_commands()
         self.assertEqual(len(handler_list), len(command_list))
         name_list1 = [command.name for command in command_list]
         name_list2 = []
@@ -56,7 +50,7 @@ class TestPUGSEBot(unittest.TestCase):
 class TestUtilsInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.commands_path = get_commands_path()
+        cls.commands_path = utils.module.get_commands_path()
         cls.commands_module_name = 'commands'
 
     def assert_get_commands(self, command_list):
@@ -65,8 +59,8 @@ class TestUtilsInit(unittest.TestCase):
             self.assertNotEqual(type(command), Base)
             self.assertTrue(isinstance(command, Base))
 
-    def test_get_commands_by_path(self):
-        command_list = utils.module.get_commands_by_path(self.commands_path)
+    def test_get_commands(self):
+        command_list = utils.module.get_commands()
         self.assert_get_commands(command_list)
 
     def test_get_commands_by_modules(self):

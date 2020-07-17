@@ -2,14 +2,23 @@ import os
 
 from utils.command_base import CommandBase
 
-PATH_COMMANDS = {}
 PATH_MODULES = {}
 
-def get_commands_by_path(path):
-    if path not in PATH_COMMANDS:
-        modules = get_modules_by_path(path)
-        PATH_COMMANDS[path] = get_commands_by_modules(modules)
-    return PATH_COMMANDS[path]
+command_list = None
+
+def get_commands():
+    global command_list
+    if command_list is None:
+        modules = get_modules_by_path(get_commands_path())
+        command_list = get_commands_by_modules(modules)
+    return command_list
+
+def get_commands_path():
+    root_directory = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
+    commands_path = os.path.join(root_directory, 'commands')
+    return commands_path
 
 def get_commands_by_modules(modules):
     command_list = []

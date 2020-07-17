@@ -1,11 +1,9 @@
-import os
-
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
 from utils.logging import bot_logger
 from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
-from utils.module import get_commands_by_path
+from utils.module import get_commands
 
 class PUGSEBot:
     logger = bot_logger
@@ -57,15 +55,10 @@ class PUGSEBot:
             return bot_reply_func(**create_content_func(update, context),)
         return reply_content
 
-    def get_commands_path(self):
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        commands_path = os.path.join(current_directory, 'commands')
-        return commands_path
-
     def add_commands(self):
         # add commands
         self.dp = self.updater.dispatcher
-        command_module_list = get_commands_by_path(self.get_commands_path())
+        command_module_list = get_commands()
         for command_module in command_module_list:
             command = command_module.name
             content_function = command_module.do_command
