@@ -2,11 +2,16 @@ import os
 
 from utils.command_base import CommandBase
 
-def get_commands_from_path(path):
-    modules = get_modules_from_path(path)
-    return get_commands_from_modules(modules)
+PATH_COMMANDS = {}
+PATH_MODULES = {}
 
-def get_commands_from_modules(modules):
+def get_commands_by_path(path):
+    if path not in PATH_COMMANDS:
+        modules = get_modules_by_path(path)
+        PATH_COMMANDS[path] = get_commands_by_modules(modules)
+    return PATH_COMMANDS[path]
+
+def get_commands_by_modules(modules):
     command_list = []
     for module in modules:
         for attr_str in dir(module):
@@ -17,12 +22,14 @@ def get_commands_from_modules(modules):
                 command_list.append(attr())
     return command_list
 
-def get_modules_from_path(path):
-    modules_names = get_modules_names(path)
-    package_name = get_package_name(path)
-    return get_modules_from_names(modules_names, package_name)
+def get_modules_by_path(path):
+    if path not in PATH_MODULES:
+        modules_names = get_modules_names(path)
+        package_name = get_package_name(path)
+        PATH_MODULES[path] = get_modules_by_names(modules_names, package_name)
+    return PATH_MODULES[path]
 
-def get_modules_from_names(modules_names, package_name):
+def get_modules_by_names(modules_names, package_name):
     modules = []
     for module_name in modules_names:
         modules.append(
