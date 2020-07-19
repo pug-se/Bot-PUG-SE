@@ -52,7 +52,7 @@ def get_modules_by_names(modules_names, package_name):
 def get_modules_names(path):
     modules_names = []
     for module_filename in os.listdir(path):
-        if module_filename != '__init__.py' and '.py' in module_filename:
+        if '__' not in module_filename:
             modules_names.append(module_filename.replace('.py', ''))
     return modules_names
 
