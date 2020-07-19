@@ -39,7 +39,7 @@ class TestPUGSEBot(unittest.TestCase):
 
     def test_add_commands(self):
         handler_list = self.bot.dp.handlers[0]
-        command_list = utils.module.get_commands()
+        command_list = utils.command_modules.get_commands()
         self.assertEqual(len(handler_list), len(command_list))
         name_list1 = [command.name for command in command_list]
         name_list2 = []
@@ -50,7 +50,7 @@ class TestPUGSEBot(unittest.TestCase):
 class TestUtilsInit(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.commands_path = utils.module.get_commands_path()
+        cls.commands_path = utils.command_modules.get_commands_path()
         cls.commands_module_name = 'commands'
 
     def assert_get_commands(self, command_list):
@@ -60,16 +60,16 @@ class TestUtilsInit(unittest.TestCase):
             self.assertTrue(isinstance(command, Base))
 
     def test_get_commands(self):
-        command_list = utils.module.get_commands()
+        command_list = utils.command_modules.get_commands()
         self.assert_get_commands(command_list)
 
     def test_get_commands_by_modules(self):
-        names = utils.module.get_modules_names(self.commands_path)
-        modules = utils.module.get_modules_by_names(
+        names = utils.command_modules.get_modules_names(self.commands_path)
+        modules = utils.command_modules.get_modules_by_names(
             names,
             self.commands_module_name,
         )
-        command_list = utils.module.get_commands_by_modules(modules)
+        command_list = utils.command_modules.get_commands_by_modules(modules)
 
         self.assert_get_commands(command_list)
 
@@ -83,13 +83,13 @@ class TestUtilsInit(unittest.TestCase):
             self.assertIn(module, attr_list)
 
     def test_get_modules_by_path(self):
-        modules = utils.module.get_modules_by_path(self.commands_path)
+        modules = utils.command_modules.get_modules_by_path(self.commands_path)
 
         self.assert_get_modules(modules)
 
     def test_get_modules_by_names(self):
-        names = utils.module.get_modules_names(self.commands_path)
-        modules = utils.module.get_modules_by_names(
+        names = utils.command_modules.get_modules_names(self.commands_path)
+        modules = utils.command_modules.get_modules_by_names(
             names,
             self.commands_module_name,
         )
@@ -97,14 +97,14 @@ class TestUtilsInit(unittest.TestCase):
         self.assert_get_modules(modules)
 
     def test_get_module_names(self):
-        names = utils.module.get_modules_names(self.commands_path)
+        names = utils.command_modules.get_modules_names(self.commands_path)
         for name in names:
             self.assertTrue(
                 hasattr(commands, name)
             )
 
     def test_get_package_name(self):
-        name = utils.module.get_package_name(self.commands_path)
+        name = utils.command_modules.get_package_name(self.commands_path)
         self.assertEqual(name, self.commands_module_name)
 
 class TestUtilsDatabaseCache(unittest.TestCase):

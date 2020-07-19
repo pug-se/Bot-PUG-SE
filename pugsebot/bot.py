@@ -1,15 +1,37 @@
+"""Main module for starting and running bot.
+
+PUGSEBot: The Bot class. Responsable defining its behavior.
+"""
+
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
 from utils.logging import bot_logger
 from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
-from utils.module import get_commands
+from utils.command_modules import get_commands
 
 class PUGSEBot:
+    """
+    A wrapper for all bot related stuff.
+
+    Defines utility response methods and binds:
+        * the python-telegram-bot Updater object
+        * the python-telegram-bot Bot object
+        * commands found by utils.module
+
+    Attributes:
+        logger:
+            Logger defined in utils.logging
+        chat_id:
+            Telegram chat id in which the bot is a member
+    """
+
     logger = bot_logger
     chat_id = TARGET_CHAT_ID
 
     def reply_text(self, **kwargs):
+        """Replies a text message with HTML parsing."""
+
         update = kwargs['update']
         text = kwargs['response']
         if text:
@@ -20,6 +42,8 @@ class PUGSEBot:
         return text
 
     def reply_photo(self, **kwargs):
+        """Replies a image message."""
+
         update = kwargs['update']
         photo = kwargs['response']
         if photo:
@@ -27,6 +51,8 @@ class PUGSEBot:
         return photo
 
     def send_text(self, **kwargs):
+        """Sends a text message to the group pointed by chat_id."""
+
         text = kwargs['response']
         if text and self.chat_id:
             self.bot.send_message(
@@ -37,6 +63,8 @@ class PUGSEBot:
         return text
 
     def send_photo(self, **kwargs):
+        """Sends a image message to the group pointed by chat_id."""
+
         photo = kwargs['response']
         if photo and self.chat_id:
             self.bot.send_photo(
@@ -50,13 +78,14 @@ class PUGSEBot:
         self.bot = self.updater.bot
         self.add_commands()
 
-    def reply_with_command(self, bot_reply_func, create_content_func):
-        def reply_content(update=None, context=None):
-            return bot_reply_func(**create_content_func(update, context),)
-        return reply_content
-
     def add_commands(self):
-        # add commands
+        """Binds commands found by utils.module.get_commands"""
+
+        def reply_with_command(bot_reply_func, create_content_func):
+            def reply_content(update=None, context=None):
+                return bot_reply_func(**create_content_func(update, context))
+            return reply_content
+
         self.dp = self.updater.dispatcher
         command_module_list = get_commands()
         for command_module in command_module_list:
@@ -70,7 +99,7 @@ class PUGSEBot:
             self.dp.add_handler(
                 CommandHandler(
                     command,
-                    self.reply_with_command(
+                    reply_with_command(
                         reply_method,
                         content_function,
                     ),
@@ -78,6 +107,12 @@ class PUGSEBot:
             )
 
     def start(self):
+        """Run the bot at development mode (default) or production mode.
+
+        Mode is defined by an Environment Variable
+         collected at utils.environment.ENVIRONMENT_MODE
+        """
+
         if ENVIRONMENT_MODE == 'PRODUCTION':
             app_name = 'pugse-telegram-bot'
             self.updater.start_webhook(

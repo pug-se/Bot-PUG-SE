@@ -1,3 +1,5 @@
+"""Gets images from https://turnoff.us"""
+
 import random
 
 from utils.request import get_html_soup

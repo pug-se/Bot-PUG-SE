@@ -1,9 +1,11 @@
+"""Defines memes command."""
+
 import random
 import os
 
 from utils.command_base import CommandBase
+from utils.command_modules import get_modules_by_path
 from utils.time import UM_DIA_EM_SEGUNDOS
-from utils.module import get_modules_by_path
 
 CACHE_EXPIRES = 1800
 

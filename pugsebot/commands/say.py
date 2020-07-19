@@ -1,3 +1,5 @@
+"""Defines say command."""
+
 from utils.command_base import CommandBase
 
 class Say(CommandBase):

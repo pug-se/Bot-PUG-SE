@@ -1,3 +1,5 @@
+"""Defines Udemy's command."""
+
 from utils.command_base import CommandBase
 from utils.request import get_html_soup
 from utils.time import UM_DIA_EM_SEGUNDOS

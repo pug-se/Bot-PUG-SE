@@ -1,3 +1,5 @@
+"""Defines about command."""
+
 from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (

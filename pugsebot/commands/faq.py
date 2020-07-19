@@ -1,3 +1,5 @@
+"""Defines FAQ command."""
+
 from utils.command_base import CommandBase
 
 MESSAGE_HEADER = 'Perguntas frequentes sobre o Python:'

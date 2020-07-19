@@ -1,3 +1,5 @@
+"""Defines projects command."""
+
 from utils.command_base import CommandBase
 from utils.request import get_json
 from utils.time import UM_DIA_EM_SEGUNDOS

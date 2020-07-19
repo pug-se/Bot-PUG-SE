@@ -1,3 +1,5 @@
+"""Gets images from https://vidadeprogramador.com.br/"""
+
 from utils.request import get_html_soup
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'

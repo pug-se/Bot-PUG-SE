@@ -1,3 +1,5 @@
+"""Defines utilites for logging"""
+
 import logging
 import sys
 

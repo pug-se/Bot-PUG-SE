@@ -1,3 +1,5 @@
+"""Defines a wrapper for scheduling command execution."""
+
 class Schedule():
     def __init__(self, name, function, message_type, interval):
         self.name = name

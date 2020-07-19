@@ -1,3 +1,25 @@
+"""Defines utilites creating new commands.
+
+CommandBase:
+    base class that needs to be inherited.
+
+    methods:
+        set_info:
+            sets new info on the database
+        get_info:
+            get info on the database
+        remove_info:
+            removes info on the database
+        function:
+            function that returns a message and
+             needs to be implemented on the child class
+        get_result:
+            searches and update cache before running function
+        do_command:
+            wrapper for get_result, used by the Bot
+        get_schedule: returns a utils.Schgedule
+"""
+
 import abc
 
 from .database import Cache, CommandInfo

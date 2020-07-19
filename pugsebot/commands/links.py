@@ -1,3 +1,5 @@
+"""Defines links command."""
+
 from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (

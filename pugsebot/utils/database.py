@@ -1,3 +1,5 @@
+"""Defines Database related classes using a ORM"""
+
 import datetime
 import peewee
 from playhouse.db_url import connect

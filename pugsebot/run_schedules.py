@@ -1,3 +1,23 @@
+"""Schedules and runs funcions defined by commands
+ and sends messages with the results.
+
+The messages will be sent to the Group
+ defined by utils.environment.TARGET_CHAT_ID
+
+Funcions:
+    _get_schedule_list:
+        Get list of schedules from all comands
+
+    _get_scheduler:
+        Get scheduler from APScheduler
+
+    _add_schedule:
+        Adds a schedule to the scheduler
+
+    _run_schedule:
+        Runs schedule and sends messages
+"""
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 

@@ -1,3 +1,5 @@
+"""Loads environment variables"""
+
 import os
 
 ENVIRONMENT_MODE = os.environ.get('ENVIRONMENT', None)
