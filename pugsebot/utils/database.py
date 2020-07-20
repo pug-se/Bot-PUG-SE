@@ -1,3 +1,5 @@
+"""Define Database related classes using a ORM."""
+
 import datetime
 import peewee
 from playhouse.db_url import connect
@@ -7,15 +9,29 @@ from .logging import cache_logger
 _db = connect(DATABASE_URL)
 
 class Cache(peewee.Model):
+    """Cache for commands.
+
+    Attibutes:
+        key:
+            key used to retrieve values
+        result:
+            value
+        expire_time:
+            expiration time of the value
+    """
+
     key = peewee.CharField(unique=True)
     result = peewee.TextField(null=False)
     expire_time = peewee.DateTimeField(null=False)
 
     class Meta:
+        """Point at database."""
+
         database = _db
 
     @classmethod
     def set_value(cls, key, result, expire):
+        """Set a value inside the cache."""
         expire_time = datetime.datetime.now()
         expire_time += datetime.timedelta(seconds=expire)
         try:
@@ -32,6 +48,7 @@ class Cache(peewee.Model):
 
     @classmethod
     def get_value(cls, key):
+        """Get a value inside the cache."""
         now = datetime.datetime.now()
         try:
             cached_result = cls.get(
@@ -48,6 +65,7 @@ class Cache(peewee.Model):
 
     @classmethod
     def remove_value(cls, key):
+        """Remove a value inside the cache."""
         try:
             cached_value = cls.get(
                 cls.key == key)
@@ -57,17 +75,31 @@ class Cache(peewee.Model):
             return False
 
 class CommandInfo(peewee.Model):
+    """Data that can be set and retrieved by commands.
+
+    Attributes:
+        command_name:
+            name of the command that sets/retrieves the data
+        key:
+            key used to retrieve the data
+        info:
+            a string data
+    """
+
     command_name = peewee.CharField(null=False)
     key = peewee.CharField(null=False)
     info = peewee.TextField(null=False)
 
     class Meta:
+        """Point the db and composite primary key."""
+
         database = _db
         primary_key = peewee.CompositeKey(
             'command_name', 'key')
 
     @classmethod
     def set_value(cls, command_name, key, info):
+        """Set the data."""
         try:
             command_info = cls.get(
                 (cls.command_name == command_name)
@@ -84,6 +116,7 @@ class CommandInfo(peewee.Model):
 
     @classmethod
     def get_value(cls, command_name, key):
+        """Get the data."""
         try:
             command_info = cls.get(
                 (cls.command_name == command_name)
@@ -95,6 +128,7 @@ class CommandInfo(peewee.Model):
 
     @classmethod
     def remove_value(cls, command_name, key):
+        """Remove the data."""
         try:
             command_info = cls.get(
                 (cls.command_name == command_name)

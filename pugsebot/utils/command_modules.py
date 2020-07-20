@@ -1,3 +1,5 @@
+"""Utilities for importing commands."""
+
 import os
 
 from utils.command_base import CommandBase
@@ -7,6 +9,7 @@ PATH_MODULES = {}
 command_list = None
 
 def get_commands():
+    """Get a list of commands."""
     global command_list
     if command_list is None:
         modules = get_modules_by_path(get_commands_path())
@@ -14,6 +17,7 @@ def get_commands():
     return command_list
 
 def get_commands_path():
+    """Get directory path of the commands package."""
     root_directory = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))
     )
@@ -21,6 +25,7 @@ def get_commands_path():
     return commands_path
 
 def get_commands_by_modules(modules):
+    """Get CommandBase child classes defined on each command module."""
     command_list = []
     for module in modules:
         for attr_str in dir(module):
@@ -32,6 +37,7 @@ def get_commands_by_modules(modules):
     return command_list
 
 def get_modules_by_path(path):
+    """Get command modules defined in a directory path."""
     if path not in PATH_MODULES:
         modules_names = get_modules_names(path)
         package_name = get_package_name(path)
@@ -39,6 +45,7 @@ def get_modules_by_path(path):
     return PATH_MODULES[path]
 
 def get_modules_by_names(modules_names, package_name):
+    """Import command modules by name."""
     modules = []
     for module_name in modules_names:
         modules.append(
@@ -50,6 +57,7 @@ def get_modules_by_names(modules_names, package_name):
     return modules
 
 def get_modules_names(path):
+    """Get all commmand modules names."""
     modules_names = []
     for module_filename in os.listdir(path):
         if '__' not in module_filename:
@@ -57,6 +65,7 @@ def get_modules_names(path):
     return modules_names
 
 def get_package_name(path):
+    """Get a package name."""
     package_name = None
     package_path = path
 

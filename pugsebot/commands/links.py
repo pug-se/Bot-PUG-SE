@@ -1,3 +1,5 @@
+"""Define links command."""
+
 from utils.command_base import CommandBase
 
 REPLY_MESSAGE = (
@@ -9,7 +11,10 @@ REPLY_MESSAGE = (
 )
 
 class Links(CommandBase):
+    """Configure links command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='links',
             help_text='Mostrar links úteis sobre Python e da PUG-SE.',
@@ -18,5 +23,6 @@ class Links(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Return important links about Python."""
         text = REPLY_MESSAGE
         return text

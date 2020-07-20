@@ -1,3 +1,5 @@
+"""Define utilites for logging."""
+
 import logging
 import sys
 
@@ -20,9 +22,11 @@ handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
+
 for logger in logger_list:
     logger.addHandler(handler)
 
 def set_level(level):
+    """Set a level to all loggers."""
     for logger in logger_list:
         logger.setLevel(level)

@@ -1,3 +1,5 @@
+"""Defines FAQ command."""
+
 from utils.command_base import CommandBase
 
 MESSAGE_HEADER = 'Perguntas frequentes sobre o Python:'
@@ -49,7 +51,10 @@ ASKS_AND_URL_ANSWERS = {
 }
 
 class FAQ(CommandBase):
+    """Configure FAQ command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='faq',
             help_text='Perguntas Frequentes sobre Python',
@@ -58,6 +63,7 @@ class FAQ(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Return a FAQ formated string about Python."""
         text = MESSAGE_HEADER + '\n'
         for ask, url_answer in ASKS_AND_URL_ANSWERS.items():
             text += '* <a href="{}">{}</a>\n'.format(url_answer, ask)

@@ -1,3 +1,5 @@
+"""Get images from vidadeprogramador."""
+
 from utils.request import get_html_soup
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
@@ -21,6 +23,7 @@ URLS_VERIFICAR_VIDA_PROGRAMADOR = [
 ]
 
 def get_meme_url_image():
+    """Get an image from vidadeprogramador."""
     meme_found = False
 
     while not meme_found:

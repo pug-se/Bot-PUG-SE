@@ -1,3 +1,5 @@
+"""Define news command."""
+
 from utils.command_base import CommandBase
 from utils.request import get_html_soup
 from utils.time import UM_DIA_EM_SEGUNDOS
@@ -6,7 +8,10 @@ from utils.logging import command_logger
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
 class News(CommandBase):
+    """Configure news command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='news',
             help_text='Coleta notícias sobre Python',
@@ -16,6 +21,7 @@ class News(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Return news about Python."""
         text = ''
         try:
             url = 'https://www.python.org/blogs/'
