@@ -19,21 +19,20 @@ Para saber quais as funcionalidades do bot, execute o mesmo e digite ``/help``
 1) Adicione as seguintes variáveis de ambiente:
     - TELEGRAM_KEY  (token do Telegram)
     - TELEGRAM_CHAT_ID (id do grupo onde o bot irá rodar)
-    - DATABASE_URL (opcional, URL de conexão com o banco de dados PostgreSQL)
+    - DATABASE_URL (opcional, URL de conexão com uma base de dados local ou com o banco de dados PostgreSQL, segue o padrão <a href="https://docs.sqlalchemy.org/en/13/core/engines.html">SQLAlchemy</a>)
 2) Execute o comando ``python ./pugsebot/bot.py``
-
-## Schedules
-1) Configure uma base de dados
-2) Defina a variável DATABASE_URL, que deve seguir o formato de url definido pelo <a href="https://docs.sqlalchemy.org/en/13/core/engines.html">SQLAlchemy</a>
 
 ## Como ajudar no projeto: 
 1) Crie um branch a partir do branch dev
-2) Implemente suas alterações. 
-3) Adicione os testes em tests.py (usamos este framework https://docs.python.org/3/library/unittest.html)
-4) Rode o script de ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
-5) Faça um Pull Request para o dev e aguarde revisão
+2) Implemente suas alterações (ver próximo tópico).
+3) Adicione os testes em tests.py (<a href="https://docs.python.org/3/library/unittest.html">framework de testes utilizado no projeto</a>)
+4) Adicione Docstrings nos seus módulos, métodos e funções (<a href="https://www.python.org/dev/peps/pep-0257/">padrão de Docstrings usado no projeto</a>)
+5) Execute o script ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
+6) Conserte os erros identificados
+7) Faça um Pull Request para o branch dev
+8) Aguarde revisão
 
-### Adicionando um novo comando
+### Adicionando um novo comando no bot
 1) Crie um módulo ou um pacote no pacote `commands`
 2) Crie uma classe e herde da classe `utils.command_base.CommandBase`, caso você tenha criado um pacote é necessário que a classeseja criada no arquivo `__init__.py`
 3) Inicialize super() os seguintes atributos:
@@ -50,6 +49,3 @@ Para saber quais as funcionalidades do bot, execute o mesmo e digite ``/help``
 4) Implemente function (código do seu comando)
     - Caso precise guardar algo no banco, use as funções set_info, get_info e remove_info de utils.command_base.CommandBase
     - exemplos de módulos de funcionalidades podem ser observados dentro do package commands
-
-## Testes
-1) Execute o comando ``./run_tests.sh`` (Linux) ou ``./run_tests.bat`` (Windows)
