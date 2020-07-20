@@ -27,7 +27,14 @@ class PUGSEBot:
     chat_id = TARGET_CHAT_ID
 
     def reply_text(self, **kwargs):
-        """Reply a text message with HTML parsing."""
+        """Reply a text message with HTML parsing.
+
+        Arguments:
+        update:
+            python-telegram-bot Update object
+        response:
+            message returned by a command function
+        """
         update = kwargs['update']
         text = kwargs['response']
         if text:
@@ -38,7 +45,14 @@ class PUGSEBot:
         return text
 
     def reply_photo(self, **kwargs):
-        """Reply a image message."""
+        """Reply a image message.
+
+        Arguments:
+        update:
+            python-telegram-bot Update object
+        response:
+            image url returned by a command function
+        """
         update = kwargs['update']
         photo = kwargs['response']
         if photo:
@@ -46,7 +60,12 @@ class PUGSEBot:
         return photo
 
     def send_text(self, **kwargs):
-        """Send a text message to the group pointed by chat_id."""
+        """Send a text message to the group pointed by chat_id.
+
+        Arguments:
+        response:
+            message returned by a command function
+        """
         text = kwargs['response']
         if text and self.chat_id:
             self.bot.send_message(
@@ -57,7 +76,12 @@ class PUGSEBot:
         return text
 
     def send_photo(self, **kwargs):
-        """Send a image message to the group pointed by chat_id."""
+        """Send a image message to the group pointed by chat_id.
+
+        Arguments:
+        response:
+            image url returned by a command function
+        """
         photo = kwargs['response']
         if photo and self.chat_id:
             self.bot.send_photo(
