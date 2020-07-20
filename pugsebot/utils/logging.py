@@ -1,4 +1,4 @@
-"""Defines utilites for logging"""
+"""Define utilites for logging."""
 
 import logging
 import sys
@@ -27,7 +27,6 @@ for logger in logger_list:
     logger.addHandler(handler)
 
 def set_level(level):
-    """Sets a level to all loggers."""
-
+    """Set a level to all loggers."""
     for logger in logger_list:
         logger.setLevel(level)

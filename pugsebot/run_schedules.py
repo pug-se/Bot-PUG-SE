@@ -1,8 +1,6 @@
-"""Schedules and runs funcions defined by commands
- and sends messages with the results.
+"""Schedule, run and send messages from funcions defined by commands.
 
-The messages will be sent to the Group
- defined by utils.environment.TARGET_CHAT_ID
+The messages are sent to the Group defined by utils.environment.TARGET_CHAT_ID
 """
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -21,7 +19,6 @@ logger = schedule_logger
 
 def _get_schedule_list():
     """Get list of schedules from all comands."""
-
     schedules = [
         command.get_schedule() for command in commands.command_list
     ]
@@ -29,7 +26,6 @@ def _get_schedule_list():
 
 def _get_scheduler():
     """Get scheduler from APScheduler."""
-
     config = {
         'apscheduler.jobstores.default': {
             'type': 'sqlalchemy',
@@ -39,8 +35,7 @@ def _get_scheduler():
     return BackgroundScheduler(config, daemon=True)
 
 def _add_schedule(sched, function, args, jitter):
-    """Adds a schedule to the scheduler."""
-
+    """Add a schedule to the scheduler."""
     name = args[0].name
     trigger = IntervalTrigger(
         seconds=args[0].interval, jitter=jitter,
@@ -71,8 +66,7 @@ def _add_schedule(sched, function, args, jitter):
             )
 
 def _run_schedule(schedule):
-    """Runs schedule and sends messages."""
-
+    """Run schedule and sends messages."""
     result = None
     if schedule.format == 'text':
         result = telegram_send_message(schedule.function(), TARGET_CHAT_ID)

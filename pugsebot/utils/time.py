@@ -1,4 +1,4 @@
-"""Defines utilites for time measuring."""
+"""Define utilites for time measuring."""
 
 UMA_HORA_EM_SEGUNDOS = 60 * 60
 UM_DIA_EM_SEGUNDOS = UMA_HORA_EM_SEGUNDOS * 24

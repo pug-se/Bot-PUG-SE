@@ -1,9 +1,12 @@
-"""Defines say command."""
+"""Define say command."""
 
 from utils.command_base import CommandBase
 
 class Say(CommandBase):
+    """Configure say command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='say',
             help_text='Broadcast de mensagens',
@@ -12,9 +15,7 @@ class Say(CommandBase):
         )
 
     def function(self, update=None, context=None):
-        """Forwards a message to the group 
-            defined at utils.environment.TARGET_CHAT_ID."""
-            
+        """Forward a message to group at utils.environment.TARGET_CHAT_ID."""
         text = ''
         if update:
             text = update.message.text.replace(

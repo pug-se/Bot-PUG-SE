@@ -1,3 +1,5 @@
+"""Test bot functionalities."""
+
 import unittest
 import json
 import time
@@ -22,6 +24,7 @@ import commands.help
 utils.logging.set_level('ERROR')
 
 def mock_update(message_text):
+    """Mock a python-telegram-bot update object."""
     message = Message(
         0, from_user=None, date=None,
         chat=0, text=message_text
@@ -29,15 +32,20 @@ def mock_update(message_text):
     return Update(0, message=message)
 
 def mock_reply_method(update=None, content=None):
+    """Mock a reply method."""
     return mock_update(content)
 
 class TestPUGSEBot(unittest.TestCase):
+    """Test bot functionalities."""
+
     @classmethod
     def setUpClass(cls):
+        """Bind the bot and chat id."""
         cls.bot = bot.PUGSEBot(utils.environment.TOKEN)
         cls.bot.chat_id = None
 
     def test_add_commands(self):
+        """Test add_commands."""
         handler_list = self.bot.dp.handlers[0]
         command_list = utils.command_modules.get_commands()
         self.assertEqual(len(handler_list), len(command_list))
@@ -47,23 +55,29 @@ class TestPUGSEBot(unittest.TestCase):
             name_list2.append(handler.command[0])
         self.assertEqual(set(name_list1), set(name_list2))
 
-class TestUtilsInit(unittest.TestCase):
+class TestUtilsCommandModule(unittest.TestCase):
+    """Test command_module functionalities."""
+
     @classmethod
     def setUpClass(cls):
+        """Bind the commands path and module name."""
         cls.commands_path = utils.command_modules.get_commands_path()
         cls.commands_module_name = 'commands'
 
     def assert_get_commands(self, command_list):
+        """Assert about get_commands functionality."""
         Base = utils.command_base.CommandBase
         for command in command_list:
             self.assertNotEqual(type(command), Base)
             self.assertTrue(isinstance(command, Base))
 
     def test_get_commands(self):
+        """Test get_commands."""
         command_list = utils.command_modules.get_commands()
         self.assert_get_commands(command_list)
 
     def test_get_commands_by_modules(self):
+        """Test get_commands_by_modules."""
         names = utils.command_modules.get_modules_names(self.commands_path)
         modules = utils.command_modules.get_modules_by_names(
             names,
@@ -74,6 +88,7 @@ class TestUtilsInit(unittest.TestCase):
         self.assert_get_commands(command_list)
 
     def assert_get_modules(self, modules):
+        """Assert about get_modules."""
         attr_names = dir(commands)
         attr_list = [
             getattr(commands, attr_str) for attr_str in attr_names
@@ -83,11 +98,13 @@ class TestUtilsInit(unittest.TestCase):
             self.assertIn(module, attr_list)
 
     def test_get_modules_by_path(self):
+        """Test get_modules_by_path."""
         modules = utils.command_modules.get_modules_by_path(self.commands_path)
 
         self.assert_get_modules(modules)
 
     def test_get_modules_by_names(self):
+        """Test get_module_by_names."""
         names = utils.command_modules.get_modules_names(self.commands_path)
         modules = utils.command_modules.get_modules_by_names(
             names,
@@ -97,6 +114,7 @@ class TestUtilsInit(unittest.TestCase):
         self.assert_get_modules(modules)
 
     def test_get_module_names(self):
+        """Test get_module_names."""
         names = utils.command_modules.get_modules_names(self.commands_path)
         for name in names:
             self.assertTrue(
@@ -104,15 +122,20 @@ class TestUtilsInit(unittest.TestCase):
             )
 
     def test_get_package_name(self):
+        """Test get_package_name."""
         name = utils.command_modules.get_package_name(self.commands_path)
         self.assertEqual(name, self.commands_module_name)
 
 class TestUtilsDatabaseCache(unittest.TestCase):
+    """Test Cache functionalities."""
+
     @classmethod
     def setUpClass(cls):
+        """Bind the Cache object."""
         cls.Cache = utils.database.Cache
 
     def setUp(self):
+        """Cache mock information."""
         expire_time = \
             datetime.datetime.now()\
             + datetime.timedelta(seconds=3)
@@ -134,6 +157,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         )
 
     def tearDown(self):
+        """Delete cached information."""
         try:
             test = self.Cache.get(
                 self.Cache.key == self.key)
@@ -142,6 +166,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
             pass
 
     def test_get_value_valid(self):
+        """Test get_value when value doesn't exist."""
         test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
@@ -149,10 +174,12 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertEqual(test.expire_time, self.expire_time)
 
     def test_get_value_invalid_key(self):
+        """Test get_value when value doesn't exist."""
         test = self.Cache.get_value('test2')
         self.assertIsNone(test)
 
     def test_get_value_invalid_expire(self):
+        """Test get_value when value is expired."""
         test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         time.sleep(4)
@@ -160,6 +187,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_set_value_new(self):
+        """Test set_value when value doesn't exist."""
         test = self.Cache.get_value(self.key)
         test.delete_instance()
         test = self.Cache.get_value(self.key)
@@ -174,6 +202,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertNotEqual(test.expire_time, self.expire_time)
 
     def test_set_value_old(self):
+        """Test set_value when value exists."""
         new_time = 4
         new_text = self.text + 'test'
         test = self.Cache.set_value(
@@ -186,6 +215,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
             test.expire_time, self.expire_time)
 
     def test_remove_value_exist(self):
+        """Test remove_value when value exists."""
         test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
         self.assertTrue(
@@ -194,6 +224,7 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_remove_value_no_exist(self):
+        """Test remove_value when value doesn't exist."""
         test = self.Cache.get_value('test2')
         self.assertIsNone(test)
         self.assertFalse(
@@ -202,11 +233,15 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         self.assertIsNone(test)
 
 class TestUtilsDatabaseCommandInfo(unittest.TestCase):
+    """Test CommandInfo functionalities."""
+
     @classmethod
     def setUpClass(cls):
+        """Bind the CommandInfo object."""
         cls.CommandInfo = utils.database.CommandInfo
 
     def setUp(self):
+        """Store mock info."""
         self.command_name = 'test'
         self.key = 'test'
         self.info = 'test'
@@ -227,6 +262,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         )
 
     def tearDown(self):
+        """Delete mock info."""
         try:
             info_test = self.CommandInfo.get(self.CommandInfo.key == self.key)
             info_test.delete_instance()
@@ -234,6 +270,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
             pass
 
     def test_get_value_valid(self):
+        """Test get_value with an valid key."""
         test = self.CommandInfo.get_value(
             self.command_name, self.key)
         self.assertIsNotNone(test)
@@ -242,11 +279,13 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertEqual(test.command_name, self.command_name)
 
     def test_get_value_invalid_key(self):
+        """Test get_value with an invalid key."""
         test = self.CommandInfo.get_value(
             'test2', 'test2')
         self.assertIsNone(test)
 
     def test_set_value_new(self):
+        """Test set_value when value doesn't exist."""
         test = self.CommandInfo.get_value(self.command_name, self.key)
         test.delete_instance()
         test = self.CommandInfo.get_value(
@@ -264,6 +303,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertEqual(test.info, new_info)
 
     def test_set_value_old(self):
+        """Test set_value when value exists."""
         new_info = 'test3'
         test = self.CommandInfo.set_value(
             self.command_name, self.key, new_info)
@@ -275,6 +315,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertEqual(test.info, new_info)
 
     def test_remove_value_exist(self):
+        """Test remove_value when value exists."""
         test = self.CommandInfo.get_value(
             self.command_name, self.key)
         self.assertIsNotNone(test)
@@ -286,6 +327,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertIsNone(test)
 
     def test_remove_value_no_exist(self):
+        """Test remove_value when value doesn't exist."""
         test = self.CommandInfo.get_value(
             self.command_name, 'teste2')
         self.assertIsNone(test)
@@ -294,23 +336,31 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
                 self.command_name, 'teste2'))
 
 class TestUtilsTime(unittest.TestCase):
+    """Test Request functionalities."""
+
     def test_UM_DIA_EM_SEGUNDOS(self):
+        """Test total seconds at UM_DIA_EM_SEGUNDOS."""
         self.assertEqual(
             utils.time.UM_DIA_EM_SEGUNDOS, 60 * 60 * 24,
         )
 
     def test_UMA_HORA_EM_SEGUNDOS(self):
+        """Test total seconds at UMA_HORA_EM_SEGUNDOS."""
         self.assertEqual(
             utils.time.UMA_HORA_EM_SEGUNDOS, 60 * 60,
         )
 
     def test_UMA_SEMANA_EM_SEGUNDOS(self):
+        """Test total seconds at UMA_SEMANA_EM_SEGUNDOS."""
         self.assertEqual(
             utils.time.UMA_SEMANA_EM_SEGUNDOS, 60 * 60 * 24 * 7,
         )
 
 class TestUtilsRequest(unittest.TestCase):
+    """Test Request functionalities."""
+
     def test_get_html_soup(self):
+        """Test get_html_soup."""
         soup = utils.request.get_html_soup('https://google.com')
         self.assertIn('Google', soup.text)
 
@@ -318,10 +368,12 @@ class TestUtilsRequest(unittest.TestCase):
         self.assertIsNone(soup)
 
     def test_get_json(self):
+        """Test get_json."""
         result = utils.request.get_json('test')
         self.assertIsInstance(result, dict)
 
     def test_telegram_send_photo(self):
+        """Test telegram_send_photo."""
         text = 'Estou sendo testado! Desculpe o incomodo...'
 
         response = utils.request.telegram_send_message(
@@ -345,6 +397,7 @@ class TestUtilsRequest(unittest.TestCase):
         )
 
     def test_telegram_send_message(self):
+        """Test telegram_send_message."""
         text = 'http://www.ellasaude.com.br/blog/wp-content'\
             '/uploads/2017/10/128-768x404.jpg'
 
@@ -368,8 +421,11 @@ class TestUtilsRequest(unittest.TestCase):
         )
 
 class TestUtilsCommandBase(unittest.TestCase):
+    """Test CommandBase functionalities."""
+
     @classmethod
     def setUpClass(cls):
+        """Mock a command."""
         cls.message = 'test'
         cls.name = 'test'
         cls.help_text = 'test'
@@ -391,16 +447,19 @@ class TestUtilsCommandBase(unittest.TestCase):
         cls.Command = MockCommand
 
     def setUp(self):
+        """Remove mocked values inside Cache and CommandInfo."""
         utils.database.Cache.remove_value(self.name)
         utils.database.CommandInfo.remove_value(
             self.name, self.message)
 
     def tearDown(self):
+        """Remove mocked values inside Cache and CommandInfo."""
         utils.database.Cache.remove_value(self.name)
         utils.database.CommandInfo.remove_value(
             self.name, self.message)
 
     def test_set_info(self):
+        """Test set_info."""
         command = self.Command()
         info = utils.database.CommandInfo.get_value(
             command_name=self.name, key=self.message
@@ -417,6 +476,7 @@ class TestUtilsCommandBase(unittest.TestCase):
         self.assertEqual(info.info, text)
 
     def test_get_info(self):
+        """Test get_info."""
         command = self.Command()
 
         info = command.get_info(self.message)
@@ -429,6 +489,7 @@ class TestUtilsCommandBase(unittest.TestCase):
         self.assertEqual(info, text)
 
     def test_remove_info(self):
+        """Test remove_info."""
         command = self.Command()
         removed = command.remove_info(self.message)
         self.assertFalse(removed)
@@ -440,6 +501,7 @@ class TestUtilsCommandBase(unittest.TestCase):
         self.assertTrue(removed)
 
     def test_get_result_cache(self):
+        """Test get_result with cached results."""
         expire = 3
         command = self.Command(expire=expire)
 
@@ -455,11 +517,13 @@ class TestUtilsCommandBase(unittest.TestCase):
         self.assertEqual(value.result, self.message)
 
     def test_get_result_no_cache(self):
+        """Test get_result without cached results."""
         command = self.Command()
         result = command.get_result()
         self.assertEqual(result, self.message)
 
     def test_get_schedule(self):
+        """Test get_schedule."""
         command = self.Command()
         schedule = command.get_schedule()
         self.assertIsNone(schedule)
@@ -470,13 +534,16 @@ class TestUtilsCommandBase(unittest.TestCase):
             isinstance(schedule, utils.schedule.Schedule))
 
     def test_function_not_implemented(self):
+        """Test CommandBase function."""
         with self.assertRaises(NotImplementedError):
             utils.command_base.CommandBase(None, None, None, None).function()
 
     def test_function(self):
+        """Test function."""
         self.assertEqual(self.Command().function(), self.message)
 
     def test_init(self):
+        """Test initialization."""
         command = self.Command()
         self.assertEqual(command.name, self.name)
         self.assertEqual(command.help_text, self.help_text)
@@ -494,6 +561,7 @@ class TestUtilsCommandBase(unittest.TestCase):
             command.expire, expire)
 
     def test_do_command(self):
+        """Test do_command."""
         command = self.Command()
         result = command.do_command()
         self.assertEqual(
@@ -508,7 +576,10 @@ class TestUtilsCommandBase(unittest.TestCase):
         self.assertEqual(result['response'], self.message)
 
 class TestUtilsSchedule(unittest.TestCase):
+    """Test utils.schedule functionality."""
+
     def test_Schedule(self):
+        """Test Schedule initialization."""
         schedule = utils.schedule.Schedule('test', None, 'send_photo', None)
         self.assertEqual(schedule.format, 'photo')
 
@@ -525,41 +596,61 @@ class TestUtilsSchedule(unittest.TestCase):
         self.assertEqual(schedule.format, 'text')
 
 class TestAbout(unittest.TestCase):
+    """Test about functionalities."""
+
     def test_function(self):
+        """Test about function."""
         result = commands.about.About().function()
         self.assertIn('comunidade', result)
         self.assertIn('contribuir', result)
 
 class TestLinks(unittest.TestCase):
+    """Test links functionalities."""
+
     def test_function(self):
+        """Test links function."""
         result = commands.links.Links().function()
         self.assertIn('links', result)
         self.assertIn('Python', result)
 
 class TestMemes(unittest.TestCase):
+    """Test memes functionalities."""
+
     def test_get_url_image_vida_programador(self):
+        """Test get_url_image_vida_programador."""
         pass
 
     def test_get_url_image_turnoff_us(self):
+        """Test get_url_image_turnoff."""
         pass
 
     def test_get_random_meme_image(self):
+        """Test get_random_meme_image."""
         pass
 
 class TestNews(unittest.TestCase):
+    """Test news functionalities."""
+
     def test_function(self):
+        """Test news function."""
         result = commands.news.News().function()
         self.assertIn('notícia', result)
         self.assertIn('http', result)
 
 class TestProjects(unittest.TestCase):
+    """Test projects functionalities."""
+
     def test_function(self):
+        """Test projects function."""
         result = commands.projects.Projects().function()
         self.assertIn('projetos', result)
         self.assertIn('http', result)
 
 class TestSay(unittest.TestCase):
+    """Test say functionalities."""
+
     def test_function(self):
+        """Test say function."""
         result = commands.say.Say().function()
         self.assertEqual('', result)
 
@@ -567,19 +658,28 @@ class TestSay(unittest.TestCase):
         self.assertEqual('test', result)
 
 class TestUdemy(unittest.TestCase):
+    """Test udemy functionalities."""
+
     def test_function(self):
+        """Test udemy function."""
         result = commands.udemy.Udemy().function()
         self.assertIn('Udemy', result)
         self.assertIn('http', result)
 
 class TestFAQ(unittest.TestCase):
+    """Test FAQ functionalities."""
+
     def test_function(self):
+        """Test FAQ function."""
         result = commands.faq.FAQ().function()
         self.assertIn('O que é Python?', result)
         self.assertIn('https://www.python.org/dev/peps/pep-0008', result)
 
 class TestHelp(unittest.TestCase):
+    """Test help functionalities."""
+
     def test_function(self):
+        """Test help function."""
         result = commands.help.Help().function()
         self.assertIn('/help', result)
         self.assertIn('/udemy', result)

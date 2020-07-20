@@ -1,4 +1,4 @@
-"""Defines utilites creating new commands."""        
+"""Define utilites creating new commands."""
 
 import abc
 
@@ -15,6 +15,7 @@ class CommandBase():
             reply_function_name,
             schedule_interval,
             expire=None,):
+        """Set attributes from child classes."""
         self.name = name
         self.help_text = help_text
         self.reply_function_name = reply_function_name
@@ -22,14 +23,12 @@ class CommandBase():
         self.expire = expire
 
     def set_info(self, info_key, info):
-        """Sets new info on the database."""
-        
+        """Set new info on the database."""
         return CommandInfo.set_value(
             self.name, info_key, info)
 
     def get_info(self, info_key):
         """Get info on the database."""
-        
         command_info = CommandInfo.get_value(
             self.name, info_key)
         if command_info:
@@ -37,22 +36,17 @@ class CommandBase():
         return None
 
     def remove_info(self, info_key):
-        """Removes info on the database."""
-
+        """Remove info on the database."""
         return CommandInfo.remove_value(
             self.name, info_key)
 
     @abc.abstractmethod
     def function(self, update=None, context=None):
-        """Function that returns a message and
-         needs to be implemented on the child class."""
-        
+        """Return a message and needs to be overridden."""
         raise NotImplementedError
 
     def get_result(self, update=None, context=None):
-        """Searches and update cache before 
-         running the function."""
-        
+        """Search and update cache before running the function."""
         if self.expire:
             cached_item = Cache.get_value(self.name)
             if cached_item is None:
@@ -67,16 +61,14 @@ class CommandBase():
         return result
 
     def do_command(self, update=None, context=None):
-        """Wrapper for get_result, used by the Bot."""
-        
+        """Define a wrapper for get_result."""
         return {
             'update': update,
             'response': self.get_result(update, context),
         }
 
     def get_schedule(self):
-        """Returns a utils.Schgedule."""
-        
+        """Return a utils.Schedule."""
         if self.interval:
             return Schedule(
                 self.name + '_function',

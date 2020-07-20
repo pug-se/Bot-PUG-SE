@@ -1,1 +1,4 @@
-"""Command modules that defines childs of utils.command_base.CommandBase."""
+"""Contain modules that describe command functionality.
+
+Modules must define a class that inherits from utils.command_base.CommandBase.
+"""

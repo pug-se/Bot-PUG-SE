@@ -1,4 +1,4 @@
-"""Defines memes command."""
+"""Define memes command."""
 
 import random
 import os
@@ -15,7 +15,10 @@ MEMES_IMAGES_FUNCTIONS = [
 ]
 
 class Memes(CommandBase):
+    """Configures meme command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='memes',
             help_text='Coleta memes de programação',
@@ -25,7 +28,6 @@ class Memes(CommandBase):
         )
 
     def function(self, update=None, context=None):
-        """Collects a random meme image."""
-        
+        """Collect a random meme image."""
         random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
         return random_image_function()

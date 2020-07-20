@@ -1,4 +1,4 @@
-"""Defines projects command."""
+"""Define projects command."""
 
 from utils.command_base import CommandBase
 from utils.request import get_json
@@ -7,7 +7,10 @@ from utils.time import UM_DIA_EM_SEGUNDOS
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
 class Projects(CommandBase):
+    """Configure projects command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='projects',
             help_text='Mostra os projetos do PUGSE no GitHub',
@@ -17,8 +20,7 @@ class Projects(CommandBase):
         )
 
     def function(self, update=None, context=None):
-        """Lists all PUG-SE projects."""
-        
+        """List all PUG-SE projects."""
         repo_url = 'http://api.github.com/orgs/pug-se/repos'
         text = 'Os projetos da comunidade estão no '
         text += f'<a href="{repo_url}">GitHub</a>\n\n'

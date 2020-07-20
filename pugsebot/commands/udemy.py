@@ -1,4 +1,4 @@
-"""Defines Udemy's command."""
+"""Define udemy command."""
 
 from utils.command_base import CommandBase
 from utils.request import get_html_soup
@@ -8,7 +8,10 @@ from utils.logging import command_logger
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS
 
 class Udemy(CommandBase):
+    """Configure udemy command."""
+
     def __init__(self):
+        """Pass arguments to CommandBase init."""
         super().__init__(
             name='udemy',
             help_text='Coleta os cupons da Udemy',
@@ -18,8 +21,7 @@ class Udemy(CommandBase):
         )
 
     def function(self, update=None, context=None):
-        """Collects 100% off Udemy coupons."""
-
+        """Collect 100% off Udemy coupons."""
         text = ''
         try:
             url = 'https://couponscorpion.com/'
