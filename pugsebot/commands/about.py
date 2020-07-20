@@ -20,5 +20,7 @@ class About(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Returns a string describing the bot."""
+        
         text = REPLY_MESSAGE
         return text

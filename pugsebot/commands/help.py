@@ -16,6 +16,8 @@ class Help(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """List and describes all commands."""
+
         text = MESSAGE_HEADER
         command_list = get_commands()
         for command in command_list:

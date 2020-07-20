@@ -1,24 +1,4 @@
-"""Defines utilites creating new commands.
-
-CommandBase:
-    base class that needs to be inherited.
-
-    methods:
-        set_info:
-            sets new info on the database
-        get_info:
-            get info on the database
-        remove_info:
-            removes info on the database
-        function:
-            function that returns a message and
-             needs to be implemented on the child class
-        get_result:
-            searches and update cache before running function
-        do_command:
-            wrapper for get_result, used by the Bot
-        get_schedule: returns a utils.Schgedule
-"""
+"""Defines utilites creating new commands."""        
 
 import abc
 
@@ -26,6 +6,8 @@ from .database import Cache, CommandInfo
 from .schedule import Schedule
 
 class CommandBase():
+    """Base class that needs to be inherited."""
+
     def __init__(
             self,
             name,
@@ -40,10 +22,14 @@ class CommandBase():
         self.expire = expire
 
     def set_info(self, info_key, info):
+        """Sets new info on the database."""
+        
         return CommandInfo.set_value(
             self.name, info_key, info)
 
     def get_info(self, info_key):
+        """Get info on the database."""
+        
         command_info = CommandInfo.get_value(
             self.name, info_key)
         if command_info:
@@ -51,14 +37,22 @@ class CommandBase():
         return None
 
     def remove_info(self, info_key):
+        """Removes info on the database."""
+
         return CommandInfo.remove_value(
             self.name, info_key)
 
     @abc.abstractmethod
     def function(self, update=None, context=None):
+        """Function that returns a message and
+         needs to be implemented on the child class."""
+        
         raise NotImplementedError
 
     def get_result(self, update=None, context=None):
+        """Searches and update cache before 
+         running the function."""
+        
         if self.expire:
             cached_item = Cache.get_value(self.name)
             if cached_item is None:
@@ -73,12 +67,16 @@ class CommandBase():
         return result
 
     def do_command(self, update=None, context=None):
+        """Wrapper for get_result, used by the Bot."""
+        
         return {
             'update': update,
             'response': self.get_result(update, context),
         }
 
     def get_schedule(self):
+        """Returns a utils.Schgedule."""
+        
         if self.interval:
             return Schedule(
                 self.name + '_function',

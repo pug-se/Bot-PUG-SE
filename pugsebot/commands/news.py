@@ -18,6 +18,8 @@ class News(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Returns news about Python."""
+        
         text = ''
         try:
             url = 'https://www.python.org/blogs/'

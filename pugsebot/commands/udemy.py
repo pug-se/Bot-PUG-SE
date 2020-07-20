@@ -18,6 +18,8 @@ class Udemy(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Collects 100% off Udemy coupons."""
+
         text = ''
         try:
             url = 'https://couponscorpion.com/'

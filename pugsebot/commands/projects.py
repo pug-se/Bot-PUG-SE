@@ -17,6 +17,8 @@ class Projects(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Lists all PUG-SE projects."""
+        
         repo_url = 'http://api.github.com/orgs/pug-se/repos'
         text = 'Os projetos da comunidade estão no '
         text += f'<a href="{repo_url}">GitHub</a>\n\n'

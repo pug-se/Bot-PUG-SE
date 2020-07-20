@@ -12,6 +12,9 @@ class Say(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Forwards a message to the group 
+            defined at utils.environment.TARGET_CHAT_ID."""
+            
         text = ''
         if update:
             text = update.message.text.replace(

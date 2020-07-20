@@ -25,5 +25,7 @@ class Memes(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Collects a random meme image."""
+        
         random_image_function = random.choice(MEMES_IMAGES_FUNCTIONS)
         return random_image_function()

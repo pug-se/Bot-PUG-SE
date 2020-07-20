@@ -8,6 +8,8 @@ BASE_URL_TURNOFF_US = 'https://turnoff.us'
 URL_TURNOFF_US_ALL_POSTS = BASE_URL_TURNOFF_US + '/pt/all/'
 
 def get_meme_url_image():
+    """Gets an image located at https://turnoff.us"""
+    
     document = get_html_soup(URL_TURNOFF_US_ALL_POSTS)
     random_link = random.choice(document.select('.post-link'))
     random_url = random_link['href']

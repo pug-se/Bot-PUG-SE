@@ -20,5 +20,7 @@ class Links(CommandBase):
         )
 
     def function(self, update=None, context=None):
+        """Returns important links about Python."""
+
         text = REPLY_MESSAGE
         return text

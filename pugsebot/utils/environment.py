@@ -1,4 +1,19 @@
-"""Loads environment variables"""
+"""Loads environment variables.
+
+Variables:
+
+ENVIRONMENT_MODE: 
+    Defines the environment as Development or Production
+
+DATABASE_URL:
+    Uses the format defined by SQLAlchemy
+
+TOKEN:
+    Bot Telegram token
+
+PORT:
+    Port used by the bot at Production mode
+"""
 
 import os
 

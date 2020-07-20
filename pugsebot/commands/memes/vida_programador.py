@@ -23,6 +23,8 @@ URLS_VERIFICAR_VIDA_PROGRAMADOR = [
 ]
 
 def get_meme_url_image():
+    """Gets an image located at https://vidadeprogramador.com.br/"""
+    
     meme_found = False
 
     while not meme_found:

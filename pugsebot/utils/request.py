@@ -13,6 +13,8 @@ _headers = {
 }
 
 def get_html_soup(url):
+    """Gets a Beautiful Soup object from a Url."""
+
     soup = None
     try:
         r = requests.get(url, headers=_headers)
@@ -22,6 +24,8 @@ def get_html_soup(url):
     return soup
 
 def get_json(url):
+    """Gets a JSON object from a Url."""
+
     result_dict = {}
     try:
         r = requests.get(url, headers=_headers)
@@ -31,7 +35,10 @@ def get_json(url):
     return result_dict
 
 base = f'https://api.telegram.org/bot{TOKEN}/'
+
 def telegram_send_photo(photo, chat_id):
+    """Sends a photo to a Telegram group."""
+
     data = {
         'chat_id': chat_id,
         'photo': photo,
@@ -39,6 +46,8 @@ def telegram_send_photo(photo, chat_id):
     return requests.post(base + 'sendPhoto', data=data)
 
 def telegram_send_message(text, chat_id):
+    """Sends a text message to a Telegram group."""
+
     data = {
         'chat_id': chat_id,
         'text': text,

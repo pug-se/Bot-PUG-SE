@@ -1,1 +1,1 @@
-"""Utilities for the bot"""
+"""Utilities for the bot."""
