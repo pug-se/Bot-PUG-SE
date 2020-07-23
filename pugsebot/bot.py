@@ -41,7 +41,7 @@ class PUGSEBot:
             update.message.reply_text(
                 text,
                 parse_mode=ParseMode.HTML,
-            )
+                disable_web_page_preview=True)
         return text
 
     def reply_photo(self, **kwargs):
@@ -72,7 +72,7 @@ class PUGSEBot:
                 chat_id=self.chat_id,
                 text=text,
                 parse_mode=ParseMode.HTML,
-            )
+                disable_web_page_preview=True)
         return text
 
     def send_photo(self, **kwargs):
