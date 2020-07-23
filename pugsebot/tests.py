@@ -605,11 +605,11 @@ class TestAbout(unittest.TestCase):
         self.assertIn('comunidade', result)
         self.assertIn('contribuir', result)
 
-class TestPackt(unittest.TestCase):
-    """Test packt functionalities."""
+class TestBook(unittest.TestCase):
+    """Test book functionalities."""
 
     def test_function(self):
-        """Test packt function."""
+        """Test book function."""
         result = commands.book.Book().function()
         self.assertIn('Livro', result)
         self.assertIn('gratuito', result)
