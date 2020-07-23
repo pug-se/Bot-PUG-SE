@@ -16,7 +16,7 @@ from utils.command_modules import get_commands
 
 logger = schedule_logger
 
-def _get_schedule_list():
+def get_schedule_list():
     """Get list of schedules from all comands."""
     schedules = [
         command.get_schedule() for command in get_commands()
@@ -74,7 +74,7 @@ def _run_schedule(schedule):
     return result
 
 if __name__ == '__main__':
-    schedule_list = _get_schedule_list()
+    schedule_list = get_schedule_list()
     if schedule_list:
         sched = _get_scheduler()
         logger.info('Checking jobs')
