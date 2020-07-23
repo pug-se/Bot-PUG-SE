@@ -23,11 +23,11 @@ class Book(CommandBase):
         """Return a free book from Packt Learning."""
         start_date = datetime.datetime.now()
         end_date = start_date + datetime.timedelta(days=1)
-        start_fate_formated = start_date.strftime('%Y-%m-%d')
+        start_date_formated = start_date.strftime('%Y-%m-%d')
         end_date_formated = end_date.strftime('%Y-%m-%d')
         promotion_url = (
             'https://services.packtpub.com/free-learning-v1/'
-            f'offers?dateFrom={start_fate_formated}&dateTo={end_date_formated}'
+            f'offers?dateFrom={start_date_formated}&dateTo={end_date_formated}'
         )
         promotion_response_json = get_json(promotion_url)
         book_id = promotion_response_json['data'][0]['productId']
