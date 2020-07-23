@@ -21,6 +21,7 @@ import commands.projects
 import commands.say
 import commands.udemy
 import commands.help
+import commands.book
 
 utils.logging.set_level('ERROR')
 
@@ -618,6 +619,17 @@ class TestAbout(unittest.TestCase):
         result = commands.about.About().function()
         self.assertIn('comunidade', result)
         self.assertIn('contribuir', result)
+
+class TestBook(unittest.TestCase):
+    """Test book functionalities."""
+
+    def test_function(self):
+        """Test book function."""
+        result = commands.book.Book().function()
+        self.assertIn('Livro', result)
+        self.assertIn('gratuito', result)
+        self.assertIn(
+            'https://www.packtpub.com/free-learning', result)
 
 class TestLinks(unittest.TestCase):
     """Test links functionalities."""
