@@ -20,7 +20,7 @@ import commands.projects
 import commands.say
 import commands.udemy
 import commands.help
-import commands.packt
+import commands.book
 
 utils.logging.set_level('ERROR')
 
@@ -610,7 +610,7 @@ class TestPackt(unittest.TestCase):
 
     def test_function(self):
         """Test packt function."""
-        result = commands.packt.Packt().function()
+        result = commands.book.Book().function()
         self.assertIn('Livro', result)
         self.assertIn('gratuito', result)
         self.assertIn(
