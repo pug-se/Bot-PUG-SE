@@ -13,7 +13,7 @@ class Book(CommandBase):
         """Pass arguments to CommandBase init."""
         super().__init__(
             name='book',
-            help_text='Livro gratúito do Packt Learning',
+            help_text='Livro gratuito do Packt Learning',
             reply_function_name='reply_text',
             schedule_interval=UM_DIA_EM_SEGUNDOS,
             expire=UM_DIA_EM_SEGUNDOS,
@@ -21,22 +21,22 @@ class Book(CommandBase):
 
     def function(self, update=None, context=None):
         """Return a free book from Packt Learning."""
-        startDate = datetime.datetime.now()
-        endDate = startDate + datetime.timedelta(days=1)
-        startDateFormated = startDate.strftime('%Y-%m-%d')
-        endDateFormated = endDate.strftime('%Y-%m-%d')
+        start_date = datetime.datetime.now()
+        end_date = start_date + datetime.timedelta(days=1)
+        start_fate_formated = start_date.strftime('%Y-%m-%d')
+        end_date_formated = end_date.strftime('%Y-%m-%d')
         promotion_url = (
             'https://services.packtpub.com/free-learning-v1/'
-            f'offers?dateFrom={startDateFormated}&dateTo={endDateFormated}'
+            f'offers?dateFrom={start_fate_formated}&dateTo={end_date_formated}'
         )
         promotion_response_json = get_json(promotion_url)
         book_id = promotion_response_json['data'][0]['productId']
 
-        url = (
+        book_url = (
             'https://static.packt-cdn.com/products/'
             f'{book_id}/summary'
         )
-        book_response_json = get_json(url)
+        book_response_json = get_json(book_url)
 
         title = book_response_json['title']
         summary = book_response_json['oneLiner']
