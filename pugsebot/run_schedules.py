@@ -3,24 +3,23 @@
 The messages are sent to the Group defined by utils.environment.TARGET_CHAT_ID
 """
 
+import time
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-
-import time
 
 from utils.environment import DATABASE_URL, TARGET_CHAT_ID
 from utils.time import UM_DIA_EM_SEGUNDOS, UMA_HORA_EM_SEGUNDOS
 from utils.logging import schedule_logger
 from utils.request import telegram_send_message, telegram_send_photo
-
-import commands
+from utils.command_modules import get_commands
 
 logger = schedule_logger
 
-def _get_schedule_list():
+def get_schedule_list():
     """Get list of schedules from all comands."""
     schedules = [
-        command.get_schedule() for command in commands.command_list
+        command.get_schedule() for command in get_commands()
     ]
     return [schedule for schedule in schedules if schedule]
 
@@ -75,7 +74,7 @@ def _run_schedule(schedule):
     return result
 
 if __name__ == '__main__':
-    schedule_list = _get_schedule_list()
+    schedule_list = get_schedule_list()
     if schedule_list:
         sched = _get_scheduler()
         logger.info('Checking jobs')

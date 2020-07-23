@@ -9,6 +9,7 @@ from telegram.update import Update
 from telegram.message import Message
 
 import bot
+import run_schedules
 import utils
 import commands
 import commands.about
@@ -54,6 +55,20 @@ class TestPUGSEBot(unittest.TestCase):
         for handler in handler_list:
             name_list2.append(handler.command[0])
         self.assertEqual(set(name_list1), set(name_list2))
+
+class TestPUGSchedules(unittest.TestCase):
+    """Test run_schedules module."""
+
+    def test_get_schedule_list(self):
+        """Test get_schedule_list."""
+        schedules = run_schedules.get_schedule_list()
+        bot_commands = utils.command_modules.get_commands()
+        schedules_count = 0
+        for bot_command in bot_commands:
+            if bot_command.get_schedule():
+                schedules_count += 1
+
+        self.assertEqual(schedules_count, len(schedules))
 
 class TestUtilsCommandModule(unittest.TestCase):
     """Test command_module functionalities."""
