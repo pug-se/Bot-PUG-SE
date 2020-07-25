@@ -2,7 +2,7 @@
 
 import random
 
-from utils.request import get_html_soup
+from ...utils.request import get_html_soup
 
 URL_HACKTOON_ALL_POSTS = 'https://hacktoon.com/index/'
 

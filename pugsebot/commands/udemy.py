@@ -1,9 +1,9 @@
 """Define udemy command."""
 
-from utils.command_base import CommandBase
-from utils.request import get_html_soup
-from utils.time import UM_DIA_EM_SEGUNDOS
-from utils.logging import command_logger
+from ..utils.command_base import CommandBase
+from ..utils.request import get_html_soup
+from ..utils.time import UM_DIA_EM_SEGUNDOS
+from ..utils.logging import command_logger
 
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS
 

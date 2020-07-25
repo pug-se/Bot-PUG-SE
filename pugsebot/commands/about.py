@@ -1,6 +1,6 @@
 """Define about command."""
 
-from utils.command_base import CommandBase
+from ..utils.command_base import CommandBase
 
 REPLY_MESSAGE = (
     'Este bot foi feito pela comunidade de Python PUG-SE para levar '

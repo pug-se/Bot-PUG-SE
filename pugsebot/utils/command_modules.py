@@ -2,7 +2,7 @@
 
 import os
 
-from utils.command_base import CommandBase
+from .command_base import CommandBase
 
 PATH_MODULES = {}
 
