@@ -1,9 +1,8 @@
 import unittest
 
 import datetime
-import time
 
-import utils
+from utils import database
 
 
 class TestUtilsDatabaseCache(unittest.TestCase):
@@ -12,17 +11,17 @@ class TestUtilsDatabaseCache(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Bind the Cache object."""
-        cls.Cache = utils.database.Cache
+        cls.Cache = database.Cache
 
     def setUp(self):
         """Cache mock information."""
-        expire_time = datetime.datetime.now() + datetime.timedelta(seconds=3)
+        self.short_expire_time = datetime.datetime.now()
+        expire_time = self.short_expire_time + datetime.timedelta(seconds=100)
         self.expire_time = expire_time
-        self.text = "test text"
+        self.text = "test"
         self.key = "test"
         try:
-            # tenta deletar uma cache teste
-            # resultante de execuções interrompidas
+            # deletes test info created on unfinished testing sessions
             cached_test = self.Cache.get(self.Cache.key == self.key)
             cached_test.delete_instance()
         except:
@@ -56,7 +55,8 @@ class TestUtilsDatabaseCache(unittest.TestCase):
         """Test get_value when value is expired."""
         test = self.Cache.get_value(self.key)
         self.assertIsNotNone(test)
-        time.sleep(4)
+        test.expire_time = self.short_expire_time
+        test.save()
         test = self.Cache.get_value(self.key)
         self.assertIsNone(test)
 
@@ -108,7 +108,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Bind the CommandInfo object."""
-        cls.CommandInfo = utils.database.CommandInfo
+        cls.CommandInfo = database.CommandInfo
 
     def setUp(self):
         """Store mock info."""
@@ -116,8 +116,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.key = "test"
         self.info = "test"
         try:
-            # tenta deletar uma cache teste
-            # resultante de execuções interrompidas
+            # deletes test info created on unfinished testing sessions
             info_test = self.CommandInfo.get(
                 (self.CommandInfo.command_name == self.command_name)
                 & (self.CommandInfo.key == self.key)
@@ -150,7 +149,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         test = self.CommandInfo.get_value("test2", "test2")
         self.assertIsNone(test)
 
-    def test_set_value_new(self):
+    def test_set_value_deleted(self):
         """Test set_value when value doesn't exist."""
         test = self.CommandInfo.get_value(self.command_name, self.key)
         test.delete_instance()
@@ -167,7 +166,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.info, new_info)
 
-    def test_set_value_old(self):
+    def test_set_value_exists(self):
         """Test set_value when value exists."""
         new_info = "test3"
         test = self.CommandInfo.set_value(
@@ -179,7 +178,7 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.info, new_info)
 
-    def test_remove_value_exist(self):
+    def test_remove_value_exists(self):
         """Test remove_value when value exists."""
         test = self.CommandInfo.get_value(self.command_name, self.key)
         self.assertIsNotNone(test)

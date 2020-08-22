@@ -27,7 +27,6 @@ class News(CommandBase):
         try:
             url = "https://www.python.org/blogs/"
             soup = get_html_soup(url)
-
             h3 = soup.find("h3", {"class": "event-title"})
             link = h3.find("a")
             title = link.text.strip()

@@ -5,7 +5,6 @@ import sys
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
 )
 
 cache_logger = logging.getLogger("cache")
@@ -29,3 +28,6 @@ def set_level(level):
     """Set a level to all loggers."""
     for logger in logger_list:
         logger.setLevel(level)
+
+
+set_level("INFO")

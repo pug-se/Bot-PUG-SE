@@ -2,6 +2,10 @@ import unittest
 
 import utils
 
+"""
+mocks
+"""
+
 
 class TestUtilsCommandBase(unittest.TestCase):
     """Test CommandBase functionalities."""

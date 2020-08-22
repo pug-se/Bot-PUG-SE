@@ -139,3 +139,5 @@ dmypy.json
 cython_debug/
 
 .vscode/
+
+local_db.sqlite

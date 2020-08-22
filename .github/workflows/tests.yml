@@ -25,7 +25,7 @@ jobs:
         flake8
     - name: Run tests
       run: |
-        python tests.py
+        pytest --cov
       env:
         TELEGRAM_KEY: ${{ secrets.TELEGRAM_KEY }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

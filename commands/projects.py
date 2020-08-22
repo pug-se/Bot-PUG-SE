@@ -27,9 +27,9 @@ class Projects(CommandBase):
         text += f'<a href="{repo_url}">GitHub</a>\n\n'
 
         url = "https://api.github.com/orgs/pug-se/repos"
-        info_dict = get_json(url)
+        info_list = get_json(url)
         i = 1
-        for info in info_dict:
+        for info in info_list:
             name = info["name"]
             description = info["description"]
             url = info["html_url"]

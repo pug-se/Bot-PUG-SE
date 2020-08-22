@@ -9,8 +9,6 @@ import utils
 
 from utils import schedule_manager
 
-utils.logging.set_level("ERROR")
-
 
 class TestBot(unittest.TestCase):
     """Test bot functionalities."""
