@@ -1,0 +1,7 @@
+[run]
+branch = True
+omit =
+    env*
+    *tests*
+[report]
+show_missing = True
