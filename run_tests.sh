@@ -4,4 +4,4 @@ set -e
 
 flake8
 
-python pugsebot/tests.py
+python tests.py

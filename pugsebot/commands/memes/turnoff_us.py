@@ -2,7 +2,7 @@
 
 import random
 
-from utils.request import get_html_soup
+from ...utils.request import get_html_soup
 
 BASE_URL_TURNOFF_US = 'https://turnoff.us'
 URL_TURNOFF_US_ALL_POSTS = BASE_URL_TURNOFF_US + '/pt/all/'

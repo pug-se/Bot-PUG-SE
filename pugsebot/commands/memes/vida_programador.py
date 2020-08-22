@@ -1,6 +1,6 @@
 """Get images from vidadeprogramador."""
 
-from utils.request import get_html_soup
+from ...utils.request import get_html_soup
 
 BASE_URL_VIDA_PROGRAMADOR = 'https://vidadeprogramador.com.br/'
 URL_VIDA_PROGRAMADOR_RANDOM = BASE_URL_VIDA_PROGRAMADOR + '+rand'

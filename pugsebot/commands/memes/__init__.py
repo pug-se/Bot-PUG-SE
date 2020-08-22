@@ -3,9 +3,9 @@
 import random
 import os
 
-from utils.command_base import CommandBase
-from utils.command_modules import get_modules_by_path
-from utils.time import UM_DIA_EM_SEGUNDOS
+from ...utils.command_base import CommandBase
+from ...utils.command_modules import get_modules_by_path
+from ...utils.time import UM_DIA_EM_SEGUNDOS
 
 CACHE_EXPIRES = 1800
 

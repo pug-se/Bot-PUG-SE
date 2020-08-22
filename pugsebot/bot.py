@@ -3,9 +3,9 @@
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 
-from utils.logging import bot_logger
-from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
-from utils.command_modules import get_commands
+from .utils.logging import bot_logger
+from .utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
+from .utils.command_modules import get_commands
 
 class PUGSEBot:
     """
@@ -142,6 +142,3 @@ class PUGSEBot:
         else:
             self.updater.start_polling()
         self.updater.idle()
-
-if __name__ == "__main__":
-    PUGSEBot(TOKEN).start()

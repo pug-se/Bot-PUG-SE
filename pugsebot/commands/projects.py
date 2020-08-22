@@ -1,8 +1,8 @@
 """Define projects command."""
 
-from utils.command_base import CommandBase
-from utils.request import get_json
-from utils.time import UM_DIA_EM_SEGUNDOS
+from ..utils.command_base import CommandBase
+from ..utils.request import get_json
+from ..utils.time import UM_DIA_EM_SEGUNDOS
 
 CACHE_EXPIRES = UM_DIA_EM_SEGUNDOS * 7
 
