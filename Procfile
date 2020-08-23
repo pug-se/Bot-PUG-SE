@@ -1,2 +1,2 @@
-web: python bot.py
-clock:  python schedules.py
+web: python -m pugsebot.bot
+clock:  python -m pugsebot.schedules
