@@ -1,13 +1,10 @@
 import unittest
+from unittest.mock import Mock, patch
 
-import utils
-
-"""
-mocks
-"""
+from utils import database, schedule, command_base
 
 
-class TestUtilsCommandBase(unittest.TestCase):
+class TestCommandBase(unittest.TestCase):
     """Test CommandBase functionalities."""
 
     @classmethod
@@ -18,7 +15,7 @@ class TestUtilsCommandBase(unittest.TestCase):
         cls.help_text = "test"
         cls.reply_function_name = "reply_text"
 
-        class MockCommand(utils.command_base.CommandBase):
+        class MockCommand(command_base.CommandBase):
             def __init__(self, interval=None, expire=None):
                 super().__init__(
                     name=cls.name,
@@ -33,94 +30,75 @@ class TestUtilsCommandBase(unittest.TestCase):
 
         cls.Command = MockCommand
 
-    def setUp(self):
-        """Remove mocked values inside Cache and CommandInfo."""
-        utils.database.Cache.remove_value(self.name)
-        utils.database.CommandInfo.remove_value(self.name, self.message)
-
-    def tearDown(self):
-        """Remove mocked values inside Cache and CommandInfo."""
-        utils.database.Cache.remove_value(self.name)
-        utils.database.CommandInfo.remove_value(self.name, self.message)
-
-    def test_set_info(self):
+    @patch("utils.command_base.CommandInfo")
+    def test_set_info(self, CommandInfo):
         """Test set_info."""
+        text = "test"
         command = self.Command()
-        info = utils.database.CommandInfo.get_value(
-            command_name=self.name, key=self.message
-        )
-        self.assertIsNone(info)
-
-        text = "test2"
         command.set_info(self.message, text)
-        info = utils.database.CommandInfo.get_value(
-            command_name=self.name, key=self.message
-        )
-        self.assertIsNotNone(info)
-        self.assertEqual(info.key, self.message)
-        self.assertEqual(info.info, text)
+        CommandInfo.set_value.assert_called_with(self.name, self.message, text)
 
-    def test_get_info(self):
+    @patch("utils.command_base.CommandInfo.get_value")
+    def test_get_info(self, get_value):
         """Test get_info."""
-        command = self.Command()
+        data_dict = {}
+        get_value.return_value = data_dict.get("test")
 
+        command = self.Command()
         info = command.get_info(self.message)
         self.assertIsNone(info)
 
-        text = "test2"
-        command.set_info(self.message, text)
+        text = "test"
+        data_mock = Mock()
+        data_mock.info = text
+        get_value.return_value = data_mock
+
         info = command.get_info(self.message)
-        self.assertIsNotNone(info)
         self.assertEqual(info, text)
 
-    def test_remove_info(self):
+    @patch("utils.command_base.CommandInfo.remove_value")
+    def test_remove_info(self, remove_value):
         """Test remove_info."""
         command = self.Command()
         removed = command.remove_info(self.message)
-        self.assertFalse(removed)
+        remove_value.assert_called_with(self.name, self.message)
 
-        text = "test2"
-        command.set_info(self.message, text)
-
-        removed = command.remove_info(self.message)
-        self.assertTrue(removed)
-
-    def test_get_result_cache(self):
+    @patch("utils.command_base.Cache")
+    def test_get_result(self, Cache):
         """Test get_result with cached results."""
         expire = 3
         command = self.Command(expire=expire)
 
-        value = utils.database.Cache.get_value(self.name)
-        self.assertIsNone(value)
+        Cache.get_value.return_value = None
+        cached_item = Mock()
+        cached_item.result = command.function()
+        Cache.set_value.return_value = cached_item
 
         result = command.get_result()
-        self.assertEqual(result, self.message)
+        Cache.get_value.assert_called_with(self.name)
+        self.assertEqual(result, command.function())
 
-        value = utils.database.Cache.get_value(self.name)
-        self.assertIsNotNone(value)
-        self.assertEqual(value.key, self.name)
-        self.assertEqual(value.result, self.message)
-
-    def test_get_result_no_cache(self):
-        """Test get_result without cached results."""
-        command = self.Command()
+        cached_item.result = "test2"
+        Cache.get_value.return_value = cached_item
         result = command.get_result()
-        self.assertEqual(result, self.message)
+        Cache.get_value.assert_called_with(self.name)
+        self.assertNotEqual(result, command.function())
+        self.assertEqual(result, cached_item.result)
 
     def test_get_schedule(self):
         """Test get_schedule."""
         command = self.Command()
-        schedule = command.get_schedule()
-        self.assertIsNone(schedule)
+        sched = command.get_schedule()
+        self.assertIsNone(sched)
 
         command_sched = self.Command(5)
-        schedule = command_sched.get_schedule()
-        self.assertTrue(isinstance(schedule, utils.schedule.Schedule))
+        sched = command_sched.get_schedule()
+        self.assertTrue(isinstance(sched, schedule.Schedule))
 
     def test_function_not_implemented(self):
         """Test CommandBase function."""
         with self.assertRaises(NotImplementedError):
-            utils.command_base.CommandBase(None, None, None, None).function()
+            command_base.CommandBase(None, None, None, None).function()
 
     def test_function(self):
         """Test function."""

@@ -13,7 +13,7 @@ class TestHelp(unittest.TestCase):
         command_list = [
             command.replace(".py", "")
             for command in command_list
-            if command not in ["__init__.py", "__pycache__"]
+            if command not in ["__init__.py", "__pycache__", "tests"]
         ]
 
         result = Help().function()
