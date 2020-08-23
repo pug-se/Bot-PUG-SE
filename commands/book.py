@@ -2,7 +2,7 @@
 
 import datetime
 
-from utils.command_base import CommandBase
+from utils.command import CommandBase
 from utils.time import UM_DIA_EM_SEGUNDOS
 from utils.request import get_json
 

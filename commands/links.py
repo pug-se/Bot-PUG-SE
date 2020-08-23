@@ -1,6 +1,6 @@
 """Define links command."""
 
-from utils.command_base import CommandBase
+from utils.command import CommandBase
 
 REPLY_MESSAGE = (
     "Alguns links úteis sobre Python e o PUG-SE:\n"

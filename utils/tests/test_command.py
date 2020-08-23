@@ -1,7 +1,73 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from utils import database, schedule, command_base
+from utils import database, schedule, command
+import commands
+
+
+class TestCommandFinder(unittest.TestCase):
+    """Test command_module functionalities."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Bind the commands path and module name."""
+        cls.commands_path = command.get_commands_path()
+        cls.commands_module_name = "commands"
+
+    def assert_get_commands(self, command_list):
+        """Assert about get_commands functionality."""
+        Base = command.CommandBase
+        for comm in command_list:
+            self.assertNotEqual(type(comm), Base)
+            self.assertTrue(isinstance(comm, Base))
+
+    def test_get_commands(self):
+        """Test get_commands."""
+        command_list = command.get_commands()
+        self.assert_get_commands(command_list)
+
+    def test_get_commands_by_modules(self):
+        """Test get_commands_by_modules."""
+        names = command.get_modules_names(self.commands_path)
+        modules = command.get_modules_by_names(
+            names, self.commands_module_name,
+        )
+        command_list = command.get_commands_by_modules(modules)
+
+        self.assert_get_commands(command_list)
+
+    def assert_get_modules(self, modules):
+        """Assert about get_modules."""
+        attr_names = dir(commands)
+        attr_list = [getattr(commands, attr_str) for attr_str in attr_names]
+
+        for module in modules:
+            self.assertIn(module, attr_list)
+
+    def test_get_modules_by_path(self):
+        """Test get_modules_by_path."""
+        modules = command.get_modules_by_path(self.commands_path)
+        self.assert_get_modules(modules)
+
+    def test_get_modules_by_names(self):
+        """Test get_module_by_names."""
+        names = command.get_modules_names(self.commands_path)
+        modules = command.get_modules_by_names(
+            names, self.commands_module_name,
+        )
+
+        self.assert_get_modules(modules)
+
+    def test_get_module_names(self):
+        """Test get_module_names."""
+        names = command.get_modules_names(self.commands_path)
+        for name in names:
+            self.assertTrue(hasattr(commands, name))
+
+    def test_get_package_name(self):
+        """Test get_package_name."""
+        name = command.get_package_name(self.commands_path)
+        self.assertEqual(name, self.commands_module_name)
 
 
 class TestCommandBase(unittest.TestCase):
@@ -15,7 +81,7 @@ class TestCommandBase(unittest.TestCase):
         cls.help_text = "test"
         cls.reply_function_name = "reply_text"
 
-        class MockCommand(command_base.CommandBase):
+        class MockCommand(command.CommandBase):
             def __init__(self, interval=None, expire=None):
                 super().__init__(
                     name=cls.name,
@@ -30,7 +96,7 @@ class TestCommandBase(unittest.TestCase):
 
         cls.Command = MockCommand
 
-    @patch("utils.command_base.CommandInfo")
+    @patch("utils.command.CommandInfo")
     def test_set_info(self, CommandInfo):
         """Test set_info."""
         text = "test"
@@ -38,7 +104,7 @@ class TestCommandBase(unittest.TestCase):
         command.set_info(self.message, text)
         CommandInfo.set_value.assert_called_with(self.name, self.message, text)
 
-    @patch("utils.command_base.CommandInfo.get_value")
+    @patch("utils.command.CommandInfo.get_value")
     def test_get_info(self, get_value):
         """Test get_info."""
         data_dict = {}
@@ -56,14 +122,14 @@ class TestCommandBase(unittest.TestCase):
         info = command.get_info(self.message)
         self.assertEqual(info, text)
 
-    @patch("utils.command_base.CommandInfo.remove_value")
+    @patch("utils.command.CommandInfo.remove_value")
     def test_remove_info(self, remove_value):
         """Test remove_info."""
         command = self.Command()
         removed = command.remove_info(self.message)
         remove_value.assert_called_with(self.name, self.message)
 
-    @patch("utils.command_base.Cache")
+    @patch("utils.command.Cache")
     def test_get_result(self, Cache):
         """Test get_result with cached results."""
         expire = 3
@@ -98,7 +164,7 @@ class TestCommandBase(unittest.TestCase):
     def test_function_not_implemented(self):
         """Test CommandBase function."""
         with self.assertRaises(NotImplementedError):
-            command_base.CommandBase(None, None, None, None).function()
+            command.CommandBase(None, None, None, None).function()
 
     def test_function(self):
         """Test function."""

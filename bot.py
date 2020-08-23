@@ -5,7 +5,7 @@ from telegram import ParseMode
 
 from utils.logging import bot_logger
 from utils.environment import TARGET_CHAT_ID, TOKEN, ENVIRONMENT_MODE, PORT
-from utils.command_modules import get_commands
+from utils.command import get_commands
 
 
 class PUGSEBot:

@@ -1,7 +1,6 @@
 """Define help command."""
 
-from utils.command_base import CommandBase
-from utils.command_modules import get_commands
+from utils.command import CommandBase, get_commands
 
 MESSAGE_HEADER = "Comandos aceitos:"
 TEMPLATE_MESSAGE = "\n/{}: {}"

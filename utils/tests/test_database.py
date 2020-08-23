@@ -1,8 +1,28 @@
 import unittest
+from unittest.mock import Mock, patch
 
 import datetime
 
 from utils import database
+
+"""
+mockar acesso aos banco nos modelos peewee
+isolar testes mockando módulos
+remover duplicidade
+
+28.54s
+
+Cache.get(cls.key == key) mock return cache_item
+Cache.create mock return cache_item
+cache_item.save()
+cache_item.delete_instance
+
+
+CommandInfo.get mock return info
+CommandInfo.create mock return info 
+info.save
+info.delete_instance
+"""
 
 
 class TestUtilsDatabaseCache(unittest.TestCase):
@@ -11,95 +31,128 @@ class TestUtilsDatabaseCache(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Bind the Cache object."""
-        cls.Cache = database.Cache
+        cls.key = "test_key"
+        cls.text = "test"
+        cls.expire_time = 0
 
-    def setUp(self):
-        """Cache mock information."""
-        self.short_expire_time = datetime.datetime.now()
-        expire_time = self.short_expire_time + datetime.timedelta(seconds=100)
-        self.expire_time = expire_time
-        self.text = "test"
-        self.key = "test"
-        try:
-            # deletes test info created on unfinished testing sessions
-            cached_test = self.Cache.get(self.Cache.key == self.key)
-            cached_test.delete_instance()
-        except:
-            pass
-        self.Cache.create(
-            key=self.key, result=self.text, expire_time=self.expire_time,
-        )
-
-    def tearDown(self):
-        """Delete cached information."""
-        try:
-            test = self.Cache.get(self.Cache.key == self.key)
-            test.delete_instance()
-        except:
-            pass
-
-    def test_get_value_valid(self):
+    @patch("utils.database.Cache.get")
+    def test_get_value_valid(self, get):
         """Test get_value when value doesn't exist."""
-        test = self.Cache.get_value(self.key)
+        cached_item = Mock()
+        cached_item.key = self.key
+        cached_item.result = self.text
+        cached_item.expire_time = self.expire_time
+
+        get.return_value = cached_item
+
+        test = database.Cache.get_value(self.key)
+        get.assert_called()
         self.assertIsNotNone(test)
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.result, self.text)
         self.assertEqual(test.expire_time, self.expire_time)
 
-    def test_get_value_invalid_key(self):
+    @patch("utils.database.Cache.get")
+    def test_get_value_invalid_key(self, get):
         """Test get_value when value doesn't exist."""
-        test = self.Cache.get_value("test2")
+        get.return_value = None
+        test = database.Cache.get_value("test")
         self.assertIsNone(test)
 
-    def test_get_value_invalid_expire(self):
+    @patch("utils.database.Cache.get")
+    def test_get_value_invalid_expire(self, get):
         """Test get_value when value is expired."""
-        test = self.Cache.get_value(self.key)
-        self.assertIsNotNone(test)
-        test.expire_time = self.short_expire_time
-        test.save()
-        test = self.Cache.get_value(self.key)
+        get.return_value = None
+        test = database.Cache.get_value(self.key)
+        expire_approx = datetime.datetime.now()
+
+        get.assert_called_once()
+
+        expression = get.call_args[0][0]
+        self.assertEqual(expression.op, "AND")
+
+        expression_l = expression.lhs
+        self.assertEqual(expression_l.op, "=")
+        self.assertEqual(expression_l.lhs, database.Cache.key)
+        self.assertEqual(expression_l.rhs, self.key)
+
+        expression_r = expression.rhs
+        self.assertEqual(expression_r.op, ">")
+        self.assertEqual(expression_r.lhs, database.Cache.expire_time)
+
+        time_diff = (expire_approx - expression_r.rhs).total_seconds()
+        self.assertLessEqual(time_diff, 1)
+
         self.assertIsNone(test)
 
-    def test_set_value_new(self):
+    @patch("utils.database.Cache.create")
+    @patch("utils.database.Cache.get")
+    def test_set_value_new(self, get, create):
         """Test set_value when value doesn't exist."""
-        test = self.Cache.get_value(self.key)
-        test.delete_instance()
-        test = self.Cache.get_value(self.key)
-        self.assertIsNone(test)
-        new_time = 3
-        test = self.Cache.set_value(self.key, self.text, new_time)
-        test = self.Cache.get_value(self.key)
-        self.assertIsNotNone(test)
+        get.return_value = None
+        expire_approx = datetime.datetime.now() + datetime.timedelta(
+            seconds=self.expire_time
+        )
+        cached_item = Mock()
+        cached_item.key = self.key
+        cached_item.result = self.text
+        cached_item.expire_time = expire_approx
+        create.return_value = cached_item
+
+        test = database.Cache.set_value(self.key, self.text, self.expire_time)
+        kwargs = create.call_args[1]
+        self.assertEqual(kwargs["key"], self.key)
+        self.assertEqual(kwargs["result"], self.text)
+        time_diff = (kwargs["expire_time"] - expire_approx).total_seconds()
+        self.assertLessEqual(time_diff, 1)
+
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.result, self.text)
-        self.assertNotEqual(test.expire_time, self.expire_time)
+        self.assertEqual(test.expire_time, expire_approx)
 
-    def test_set_value_old(self):
+    @patch("utils.database.Cache.create")
+    @patch("utils.database.Cache.get")
+    def test_set_value_old(self, get, create):
         """Test set_value when value exists."""
-        new_time = 4
-        new_text = self.text + "test"
-        test = self.Cache.set_value(self.key, new_text, new_time)
-        test = self.Cache.get_value(self.key)
-        self.assertIsNotNone(test)
-        self.assertEqual(test.key, self.key)
-        self.assertEqual(test.result, new_text)
-        self.assertNotEqual(test.expire_time, self.expire_time)
+        cached_item = Mock()
+        cached_item.key = self.key
+        cached_item.result = self.text
+        cached_item.expire_time = self.expire_time
+        cached_item.save.return_value = cached_item
+        get.return_value = cached_item
 
-    def test_remove_value_exist(self):
+        test = database.Cache.set_value(self.key, self.text, self.expire_time)
+        expire_approx = datetime.datetime.now() + datetime.timedelta(
+            seconds=self.expire_time
+        )
+        create.assert_not_called()
+        cached_item.save.assert_called_once()
+
+        self.assertEqual(self.key, test.key)
+        self.assertEqual(self.text, test.result)
+        self.assertNotEqual(self.expire_time, test.expire_time)
+        time_diff = (expire_approx - test.expire_time).total_seconds()
+        self.assertEqual(time_diff, 0)
+
+    @patch("utils.database.Cache.get")
+    def test_remove_value_exist(self, get):
         """Test remove_value when value exists."""
-        test = self.Cache.get_value(self.key)
-        self.assertIsNotNone(test)
-        self.assertTrue(self.Cache.remove_value(self.key))
-        test = self.Cache.get_value(self.key)
-        self.assertIsNone(test)
+        cached_item = Mock()
+        cached_item.delete_instance.return_value = True
+        get.return_value = cached_item
+        self.assertTrue(database.Cache.remove_value(self.key))
+        cached_item.delete_instance.assert_called()
 
-    def test_remove_value_no_exist(self):
+        expression = get.call_args[0][0]
+        self.assertEqual(expression.op, "=")
+        self.assertEqual(expression.lhs, database.Cache.key)
+        self.assertEqual(expression.rhs, self.key)
+
+    @patch("utils.database.Cache.get")
+    def test_remove_value_no_exist(self, get):
         """Test remove_value when value doesn't exist."""
-        test = self.Cache.get_value("test2")
-        self.assertIsNone(test)
-        self.assertFalse(self.Cache.remove_value("test2"))
-        test = self.Cache.get_value("test2")
-        self.assertIsNone(test)
+        get.return_value = None
+        self.assertFalse(database.Cache.remove_value(self.key))
 
 
 class TestUtilsDatabaseCommandInfo(unittest.TestCase):
@@ -107,91 +160,117 @@ class TestUtilsDatabaseCommandInfo(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Bind the CommandInfo object."""
-        cls.CommandInfo = database.CommandInfo
+        """Bind the Cache object."""
+        cls.command_name = "test"
+        cls.key = "test"
+        cls.info = "test"
 
-    def setUp(self):
-        """Store mock info."""
-        self.command_name = "test"
-        self.key = "test"
-        self.info = "test"
-        try:
-            # deletes test info created on unfinished testing sessions
-            info_test = self.CommandInfo.get(
-                (self.CommandInfo.command_name == self.command_name)
-                & (self.CommandInfo.key == self.key)
-            )
-            info_test.delete_instance()
-        except:
-            pass
-        self.CommandInfo.create(
-            command_name=self.command_name, key=self.key, info=self.info,
-        )
-
-    def tearDown(self):
-        """Delete mock info."""
-        try:
-            info_test = self.CommandInfo.get(self.CommandInfo.key == self.key)
-            info_test.delete_instance()
-        except:
-            pass
-
-    def test_get_value_valid(self):
+    @patch("utils.database.CommandInfo.get")
+    def test_get_value_valid(self, get):
         """Test get_value with an valid key."""
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNotNone(test)
+        info_mock = Mock()
+        info_mock.command_name = self.command_name
+        info_mock.info = self.info
+        info_mock.key = self.key
+        get.return_value = info_mock
+
+        test = database.CommandInfo.get_value(self.command_name, self.key)
+
+        expression = get.call_args[0][0]
+        self.assertEqual(expression.op, "AND")
+
+        expression_l = expression.lhs
+        self.assertEqual(expression_l.op, "=")
+        self.assertEqual(expression_l.lhs, database.CommandInfo.command_name)
+        self.assertEqual(expression_l.rhs, self.command_name)
+
+        expression_r = expression.rhs
+        self.assertEqual(expression_r.op, "=")
+        self.assertEqual(expression_r.lhs, database.CommandInfo.key)
+        self.assertEqual(expression_r.rhs, self.key)
+
         self.assertEqual(test.key, self.key)
         self.assertEqual(test.info, self.info)
         self.assertEqual(test.command_name, self.command_name)
 
-    def test_get_value_invalid_key(self):
+    @patch("utils.database.CommandInfo.get")
+    def test_get_value_invalid_key(self, get):
         """Test get_value with an invalid key."""
-        test = self.CommandInfo.get_value("test2", "test2")
+        get.return_value = None
+        test = database.CommandInfo.get_value(self.command_name, self.key)
         self.assertIsNone(test)
 
-    def test_set_value_deleted(self):
+    @patch("utils.database.CommandInfo.create")
+    @patch("utils.database.CommandInfo.get")
+    def test_set_value_no_exists(self, get, create):
         """Test set_value when value doesn't exist."""
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        test.delete_instance()
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNone(test)
+        get.return_value = None
+        mock_info = Mock()
+        mock_info.command_name = self.command_name
+        mock_info.key = self.key
+        mock_info.info = self.info
+        create.return_value = mock_info
 
-        new_info = "test3"
-        test = self.CommandInfo.set_value(
-            self.command_name, self.key, new_info
+        test = database.CommandInfo.set_value(
+            self.command_name, self.key, self.info
         )
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNotNone(test)
-        self.assertEqual(test.command_name, self.command_name)
-        self.assertEqual(test.key, self.key)
-        self.assertEqual(test.info, new_info)
+        create.assert_called_with(
+            command_name=self.command_name, key=self.key, info=self.info,
+        )
 
-    def test_set_value_exists(self):
+        self.assertEqual(test.key, self.key)
+        self.assertEqual(test.info, self.info)
+        self.assertEqual(test.command_name, self.command_name)
+
+    @patch("utils.database.CommandInfo.create")
+    @patch("utils.database.CommandInfo.get")
+    def test_set_value_exists(self, get, create):
         """Test set_value when value exists."""
-        new_info = "test3"
-        test = self.CommandInfo.set_value(
-            self.command_name, self.key, new_info
-        )
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNotNone(test)
-        self.assertEqual(test.command_name, self.command_name)
-        self.assertEqual(test.key, self.key)
-        self.assertEqual(test.info, new_info)
+        mock_info = Mock()
+        mock_info.command_name = self.command_name
+        mock_info.key = self.key
+        mock_info.info = self.info
+        mock_info.save.return_value = mock_info
+        get.return_value = mock_info
 
-    def test_remove_value_exists(self):
+        test = database.CommandInfo.set_value(
+            self.command_name, self.key, self.info
+        )
+        create.assert_not_called()
+        mock_info.save.assert_called_once()
+
+        self.assertEqual(self.key, test.key)
+        self.assertEqual(self.info, test.info)
+        self.assertEqual(self.command_name, test.command_name)
+
+    @patch("utils.database.CommandInfo.get")
+    def test_remove_value_exists(self, get):
         """Test remove_value when value exists."""
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNotNone(test)
+        mock_info = Mock()
+        mock_info.delete_instance.return_value = True
+        get.return_value = mock_info
         self.assertTrue(
-            self.CommandInfo.remove_value(self.command_name, self.key)
+            database.CommandInfo.remove_value(self.command_name, self.key)
         )
-        test = self.CommandInfo.get_value(self.command_name, self.key)
-        self.assertIsNone(test)
+        mock_info.delete_instance.assert_called()
 
-    def test_remove_value_no_exist(self):
+        expression = get.call_args[0][0]
+        self.assertEqual(expression.op, "AND")
+
+        expression_l = expression.lhs
+        self.assertEqual(expression_l.op, "=")
+        self.assertEqual(expression_l.lhs, database.CommandInfo.command_name)
+        self.assertEqual(expression_l.rhs, self.command_name)
+
+        expression_r = expression.rhs
+        self.assertEqual(expression_r.op, "=")
+        self.assertEqual(expression_r.lhs, database.CommandInfo.key)
+        self.assertEqual(expression_r.rhs, self.key)
+
+    @patch("utils.database.CommandInfo.get")
+    def test_remove_value_no_exist(self, get):
         """Test remove_value when value doesn't exist."""
-        test = self.CommandInfo.get_value(self.command_name, "teste2")
-        self.assertIsNone(test)
+        get.return_value = None
         self.assertFalse(
-            self.CommandInfo.remove_value(self.command_name, "teste2")
+            database.CommandInfo.remove_value(self.command_name, self.key)
         )

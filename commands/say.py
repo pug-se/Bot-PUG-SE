@@ -1,6 +1,5 @@
 """Define say command."""
-
-from utils.command_base import CommandBase
+from utils.command import CommandBase
 
 
 class Say(CommandBase):

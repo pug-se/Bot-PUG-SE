@@ -1,7 +1,5 @@
 """Test bot functionalities."""
 
-# fazer testes de integração para ambos
-
 import unittest
 
 import bot
@@ -9,6 +7,7 @@ import utils
 
 """
 testes de integração também
+funções separadas
 """
 
 
@@ -24,7 +23,7 @@ class TestBot(unittest.TestCase):
     def test_add_commands(self):
         """Test add_commands."""
         handler_list = self.bot.dp.handlers[0]
-        command_list = utils.command_modules.get_commands()
+        command_list = utils.command.get_commands()
         self.assertEqual(len(handler_list), len(command_list))
         name_list1 = [command.name for command in command_list]
         name_list2 = []
